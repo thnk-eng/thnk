@@ -1,0 +1,6 @@
+.env
+log/*
+public/
+node_modules/
+spec/examples.txt
+.DS_Store
