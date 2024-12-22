@@ -1,0 +1,68 @@
+{
+  "responses": [
+    {
+      "labelAnnotations": [
+        {
+          "description": "Luggage and bags",
+          "mid": "/m/0hf58v5",
+          "score": 0.91750944,
+          "topicality": 0.91750944
+        },
+        {
+          "description": "Bag",
+          "mid": "/m/0n5v01m",
+          "score": 0.89651096,
+          "topicality": 0.89651096
+        },
+        {
+          "description": "Shoulder bag",
+          "mid": "/m/0hgrzkp",
+          "score": 0.8154142,
+          "topicality": 0.8154142
+        },
+        {
+          "description": "Font",
+          "mid": "/m/03gq5hm",
+          "score": 0.76985645,
+          "topicality": 0.76985645
+        },
+        {
+          "description": "Handbag",
+          "mid": "/m/080hkjn",
+          "score": 0.69733477,
+          "topicality": 0.69733477
+        },
+        {
+          "description": "Auto part",
+          "mid": "/m/08dz3q",
+          "score": 0.694934,
+          "topicality": 0.694934
+        },
+        {
+          "description": "Fashion accessory",
+          "mid": "/m/0463sg",
+          "score": 0.6764675,
+          "topicality": 0.6764675
+        },
+        {
+          "description": "Brand",
+          "mid": "/m/01cd9",
+          "score": 0.6745593,
+          "topicality": 0.6745593
+        },
+        {
+          "description": "Strap",
+          "mid": "/m/04lzmz",
+          "score": 0.6533819,
+          "topicality": 0.6533819
+        },
+        {
+          "description": "Rectangle",
+          "mid": "/m/0j62f",
+          "score": 0.62602776,
+          "topicality": 0.62602776
+        }
+      ]
+    }
+  ]
+}

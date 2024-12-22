@@ -10,9 +10,9 @@ OUTPUT_CSV = 'output.csv'
 def parse_json_file(file_path)
   file = File.read(file_path)
   data = JSON.parse(file)
-  labels = data.dig('responses', 0, 'labelAnnotations') || []
+  labels = data.dig("responses", 0, "labelAnnotations") || []
   labels.map do |label|
-    [label['description'], label['score'], label['topicality']]
+    [label["description"], label["score"], label["topicality"]]
   end
 end
 
@@ -24,7 +24,7 @@ def generate_csv
   Dir.foreach(DIR) do |filename|
     next if filename == '.' || filename == '..' || File.extname(filename) != '.jpg'
 
-    json_filename = filename + '.json'
+    json_filename = filename + ".json"
     json_path = File.join(DIR, json_filename)
 
     if File.exist?(json_path)
@@ -37,9 +37,9 @@ def generate_csv
   end
 
   # Generate the CSV with appropriate header and rows
-  CSV.open(OUTPUT_CSV, 'wb') do |csv|
+  CSV.open(OUTPUT_CSV, "wb") do |csv|
     # Header row
-    header = ['Image']
+    header = ["Image"]
     max_labels.times do |i|
       header += ["Label #{i+1} Description", "Label #{i+1} Score", "Label #{i+1} Topicality"]
     end

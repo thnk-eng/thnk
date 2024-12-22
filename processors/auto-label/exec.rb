@@ -10,14 +10,14 @@ module Slide
     def make_executable
       if File.exist?(@script_path)
         if system("chmod +x #{@script_path}")
-          puts 'File permissions changed: script is now executable.'
+          puts "File permissions changed: script is now executable."
           true
         else
-          puts 'Failed to change file permissions.'
+          puts "Failed to change file permissions."
           false
         end
       else
-        puts 'Error: Script file does not exist.'
+        puts "Error: Script file does not exist."
         false
       end
     end
@@ -25,9 +25,9 @@ module Slide
     def execute_script(*args)
       begin
         command = case @extension
-                  when '.rb'
+                  when ".rb"
                     "ruby #{@script_path} #{args.join(' ')}"
-                  when '.py'
+                  when ".py"
                     "python3 #{@script_path} #{args.join(' ')}"
                   else
                     raise "Unsupported script type: #{@extension}"
@@ -36,7 +36,7 @@ module Slide
         Dir.chdir(File.dirname(@script_path)) do
           system(command)
         end
-        puts 'Script executed successfully.'
+        puts "Script executed successfully."
       rescue StandardError => e
         puts "Error executing script: #{e.message}"
       end
@@ -49,7 +49,7 @@ script_path = 'label_serv2.rb'
 executor = Slide::Executor.new(script_path)
 
 if executor.make_executable
-  executor.execute_script('arg1', 'arg2')  # You can pass arguments to the script
+  executor.execute_script("arg1", "arg2")  # You can pass arguments to the script
 end
 
 # For Python script example
@@ -57,5 +57,5 @@ python_script_path = ''
 python_executor = Slide::Executor.new(python_script_path)
 
 if python_executor.make_executable
-  python_executor.execute_script('arg1', 'arg2')  # You can pass arguments to the script
+  python_executor.execute_script("arg1", "arg2")  # You can pass arguments to the script
 end
