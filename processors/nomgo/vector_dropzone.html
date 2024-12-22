@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en" class="bg-transparent">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Statement Processor</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <style>
+            @keyframes pulse {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+            .pulse {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .file-preview {
+                width: 100px;
+                height: 100px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+            .file-preview-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            .file-preview-item {
+                position: relative;
+                width: 100px;
+            }
+            .file-preview-remove {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                background-color: white;
+                color: #ef4444;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                text-align: center;
+                line-height: 20px;
+                cursor: pointer;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+        </style>
+    </head>
+    <body class="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+        <div class="container max-w-4xl bg-white shadow-lg rounded-lg p-6">
+            <h1 class="text-3xl font-semibold text-center mb-6">
+                Credit Statement Processor
+            </h1>
+
+            <!-- Status Messages -->
+            <div id="status-message" class="mb-4 hidden">
+                <div class="p-4 rounded-lg"></div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex mb-6 border-b border-gray-200">
+                <button
+                    id="dropzoneTab"
+                    class="tab-button px-4 py-2 focus:outline-none border-b-2 border-blue-500"
+                >
+                    Upload Files
+                </button>
+                <button
+                    id="galleryTab"
+                    class="tab-button px-4 py-2 focus:outline-none border-b-2 border-transparent"
+                >
+                    Gallery
+                </button>
+            </div>
+
+            <!-- Upload Section -->
+            <div id="dropZoneSection" class="tab-content">
+                <div
+                    id="file-preview-container"
+                    class="file-preview-container mb-4"
+                ></div>
+                <div
+                    id="drop-zone"
+                    class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:bg-gray-50 transition-colors duration-200"
+                >
+                    <form id="file-upload-form" class="space-y-4">
+                        <input
+                            type="file"
+                            id="file_input"
+                            name="file"
+                            accept=".txt,.md,.text"
+                            class="hidden"
+                        />
+                        <label
+                            for="file_input"
+                            class="cursor-pointer flex flex-col items-center"
+                        >
+                            <svg
+                                class="w-12 h-12 text-gray-400 mb-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                />
+                            </svg>
+                            <span class="text-gray-600"
+                                >Drop text files here or click to upload</span
+                            >
+                            <span class="text-sm text-gray-500 mt-2"
+                                >Supported formats: .txt, .md, .text</span
+                            >
+                        </label>
+                    </form>
+                </div>
+
+                <div id="process-visualization" class="hidden mt-6 space-y-4">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        Processing Status
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="upload-progress">
+                            <div
+                                class="flex justify-between text-sm text-gray-600 mb-1"
+                            >
+                                <span>Uploading</span>
+                                <span class="progress-percentage">0%</span>
+                            </div>
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div
+                                    class="progress-bar h-full bg-blue-500 rounded-full transition-all duration-300"
+                                    style="width: 0%"
+                                ></div>
+                            </div>
+                        </div>
+                        <div class="embedding-progress">
+                            <div
+                                class="flex justify-between text-sm text-gray-600 mb-1"
+                            >
+                                <span>Generating Embedding</span>
+                                <span class="progress-percentage">0%</span>
+                            </div>
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div
+                                    class="progress-bar h-full bg-blue-500 rounded-full transition-all duration-300"
+                                    style="width: 0%"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    id="process-files-btn"
+                    class="w-full mt-4 py-2 px-4 bg-blue-100 text-black rounded-lg hover:bg-blue-200 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                    Process File
+                </button>
+            </div>
+
+            <!-- Gallery Section -->
+            <div id="gallerySection" class="tab-content hidden">
+                <div class="mb-4">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search files..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                </div>
+                <div
+                    id="fileGallery"
+                    class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                >
+                    <!-- Gallery items will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                let currentFile = null;
+
+                function showStatus(message, type = "info") {
+                    const $status = $("#status-message");
+                    const $content = $status.find("div");
+
+                    const classes = {
+                        error: "bg-red-100 text-red-700",
+                        success: "bg-green-100 text-green-700",
+                        info: "bg-blue-100 text-blue-700",
+                    };
+
+                    $content
+                        .removeClass(
+                            "bg-red-100 bg-green-100 bg-blue-100 text-red-700 text-green-700 text-blue-700",
+                        )
+                        .addClass(classes[type])
+                        .text(message);
+
+                    $status.removeClass("hidden");
+
+                    if (type !== "error") {
+                        setTimeout(() => $status.addClass("hidden"), 5000);
+                    }
+                }
+
+                function updateProgress(stage, progress) {
+                    const $progressSection = $("#process-visualization");
+                    const $progressBar = $progressSection.find(
+                        `.${stage}-progress .progress-bar`,
+                    );
+                    const $percentage = $progressSection.find(
+                        `.${stage}-progress .progress-percentage`,
+                    );
+
+                    $progressSection.removeClass("hidden");
+                    $progressBar.css("width", `${progress}%`);
+                    $percentage.text(`${progress}%`);
+                }
+
+                function resetProgress() {
+                    $("#process-visualization").addClass("hidden");
+                    $(".progress-bar").css("width", "0%");
+                    $(".progress-percentage").text("0%");
+                }
+
+                function handleFilePreview(file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const preview = `
+                        <div class="file-preview-item">
+                            <div class="file-preview bg-gray-100 flex items-center justify-center">
+                                <span class="text-lg text-gray-500">${file.name.split(".").pop().toUpperCase()}</span>
+                            </div>
+                            <div class="file-preview-remove">×</div>
+                            <div class="text-center mt-2 text-sm text-gray-600 truncate">${file.name}</div>
+                        </div>
+                    `;
+                        $("#file-preview-container").html(preview);
+                    };
+                    reader.readAsText(file);
+                }
+
+                function refreshGallery() {
+                    $.getJSON("/api/files", function (files) {
+                        const gallery = $("#fileGallery");
+                        gallery.empty();
+
+                        files.forEach((file) => {
+                            const card = `
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-gray-900 truncate" title="${file.filename}">
+                                        ${file.filename}
+                                    </h3>
+                                </div>
+                                <div class="mt-2 text-sm text-gray-500">
+                                    Processed: ${new Date(file.created_at).toLocaleString()}
+                                </div>
+                            </div>
+                        `;
+                            gallery.append(card);
+                        });
+                    }).fail(function () {
+                        showStatus("Failed to load files", "error");
+                    });
+                }
+
+                // Event Handlers
+                $("#dropzoneTab, #galleryTab").click(function () {
+                    const isGallery = $(this).attr("id") === "galleryTab";
+
+                    $(".tab-button")
+                        .removeClass("border-blue-500")
+                        .addClass("border-transparent");
+                    $(this)
+                        .addClass("border-blue-500")
+                        .removeClass("border-transparent");
+
+                    if (isGallery) {
+                        $("#gallerySection").removeClass("hidden");
+                        $("#dropZoneSection").addClass("hidden");
+                        refreshGallery();
+                    } else {
+                        $("#dropZoneSection").removeClass("hidden");
+                        $("#gallerySection").addClass("hidden");
+                    }
+                });
+
+                $("#file_input").change(function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        currentFile = file;
+                        handleFilePreview(file);
+                    }
+                });
+
+                $("#drop-zone")
+                    .on("dragover", function (e) {
+                        e.preventDefault();
+                        $(this).addClass("bg-gray-50");
+                    })
+                    .on("dragleave", function (e) {
+                        e.preventDefault();
+                        $(this).removeClass("bg-gray-50");
+                    })
+                    .on("drop", function (e) {
+                        e.preventDefault();
+                        $(this).removeClass("bg-gray-50");
+
+                        const file = e.originalEvent.dataTransfer.files[0];
+                        if (file) {
+                            if (!file.name.match(/\.(txt|md|text)$/i)) {
+                                showStatus(
+                                    "Only .txt, .md, and .text files are supported",
+                                    "error",
+                                );
+                                return;
+                            }
+                            currentFile = file;
+                            $("#file_input")[0].files =
+                                e.originalEvent.dataTransfer.files;
+                            handleFilePreview(file);
+                        }
+                    });
+
+                $(document).on("click", ".file-preview-remove", function () {
+                    currentFile = null;
+                    $("#file_input").val("");
+                    $("#file-preview-container").empty();
+                });
+
+                $("#process-files-btn").click(async function () {
+                    if (!currentFile) {
+                        showStatus("Please select a file first", "error");
+                        return;
+                    }
+
+                    const $button = $(this);
+                    $button.prop("disabled", true).text("Processing...");
+                    resetProgress();
+
+                    const formData = new FormData();
+                    formData.append("file", currentFile);
+
+                    try {
+                        updateProgress("upload", 50);
+
+                        const response = await fetch("/generate-embedding", {
+                            method: "POST",
+                            body: formData,
+                        });
+
+                        updateProgress("upload", 100);
+                        updateProgress("embedding", 50);
+
+                        if (!response.ok) {
+                            const error = await response.json();
+                            throw new Error(
+                                error.error || "Failed to process file",
+                            );
+                        }
+
+                        const result = await response.json();
+                        updateProgress("embedding", 100);
+
+                        showStatus("File processed successfully", "success");
+                        currentFile = null;
+                        $("#file_input").val("");
+                        $("#file-preview-container").empty();
+                    } catch (error) {
+                        showStatus(error.message, "error");
+                    } finally {
+                        $button.prop("disabled", false).text("Process File");
+                        setTimeout(resetProgress, 2000);
+                    }
+                });
+
+                $("#searchInput").on("input", function () {
+                    const query = $(this).val().toLowerCase();
+
+                    $.getJSON("/api/files", function (files) {
+                        const filtered = files.filter((file) =>
+                            file.filename.toLowerCase().includes(query),
+                        );
+                        refreshGallery(filtered);
+                    });
+                });
+
+                // Initial gallery load
+                if ($("#gallerySection").is(":visible")) {
+                    refreshGallery();
+                }
+            });
+        </script>
+    </body>
+</html>

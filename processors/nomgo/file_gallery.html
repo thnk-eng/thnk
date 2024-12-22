@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en" class="bg-transparent">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>File Processor with Gallery</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body class="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+        <div class="container max-w-4xl bg-white shadow-lg rounded-lg p-6">
+            <h1 class="text-3xl font-semibold text-center mb-6">
+                File Processor
+            </h1>
+
+            <!-- Tabs for navigation -->
+            <div class="flex mb-6 border-b border-gray-200">
+                <button
+                    id="dropzoneTab"
+                    class="tab-button px-4 py-2 focus:outline-none border-b-2 border-blue-500"
+                >
+                    Drop Zone
+                </button>
+                <button
+                    id="galleryTab"
+                    class="tab-button px-4 py-2 focus:outline-none border-b-2 border-transparent"
+                >
+                    Gallery
+                </button>
+            </div>
+
+            <!-- Drop Zone Section -->
+            <div id="dropZoneSection" class="tab-content">
+                <h2 class="text-xl font-light mb-4">Upload Files</h2>
+                <div
+                    id="file-preview-container"
+                    class="file-preview-container mb-4"
+                ></div>
+                <div
+                    id="drop-zone"
+                    class="border-2 border-dashed border-slate-300 bg-white bg-opacity-10 hover:bg-blue-100 rounded-lg p-16"
+                >
+                    <form id="file-upload-form" class="space-y-4">
+                        <input
+                            type="file"
+                            id="file_input"
+                            name="files"
+                            multiple
+                            class="hidden"
+                        />
+                        <label
+                            for="file_input"
+                            class="cursor-pointer block text-center py-2 px-4 w-full text-sm text-gray-500 rounded-lg"
+                            >Drop files here or click to upload</label
+                        >
+                    </form>
+                </div>
+                <button
+                    id="process-files-btn"
+                    type="button"
+                    class="w-full bg-blue-100 py-2 px-4 my-2 rounded-lg hover:bg-blue-200"
+                >
+                    Process Files
+                </button>
+            </div>
+
+            <!-- Gallery Section -->
+            <div id="gallerySection" class="tab-content hidden">
+                <h2 class="text-xl font-light mb-4">File Gallery</h2>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search files by name..."
+                    class="w-full px-4 py-2 mb-4 rounded-lg border border-gray-300"
+                />
+                <div
+                    id="fileGallery"
+                    class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                >
+                    <!-- File cards will be displayed here -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Fetch files from the server and render them
+            function fetchAndRenderFiles() {
+                $.getJSON("/api/files", function (data) {
+                    renderFiles(data);
+                }).fail(function () {
+                    alert("Failed to load files from the database.");
+                });
+            }
+
+            // Render files into the gallery
+            function renderFiles(files) {
+                const gallery = document.getElementById("fileGallery");
+                gallery.innerHTML = "";
+                files.forEach((file) => {
+                    const card = document.createElement("div");
+                    card.className =
+                        "bg-white shadow-md rounded-lg p-4 text-center";
+                    card.innerHTML = `
+                    <div class="text-lg font-semibold mb-1">${file.filename}</div>
+                    <div class="text-sm text-gray-500">Size: ${file.size} bytes</div>
+                `;
+                    gallery.appendChild(card);
+                });
+            }
+
+            $(document).ready(function () {
+                // Initial fetch of files for gallery
+                fetchAndRenderFiles();
+
+                // Tab switching
+                $("#dropzoneTab").on("click", function () {
+                    $("#dropZoneSection").show();
+                    $("#gallerySection").hide();
+                    $(this)
+                        .addClass("border-blue-500")
+                        .removeClass("border-transparent");
+                    $("#galleryTab")
+                        .removeClass("border-blue-500")
+                        .addClass("border-transparent");
+                });
+
+                $("#galleryTab").on("click", function () {
+                    $("#gallerySection").show();
+                    $("#dropZoneSection").hide();
+                    $(this)
+                        .addClass("border-blue-500")
+                        .removeClass("border-transparent");
+                    $("#dropzoneTab")
+                        .removeClass("border-blue-500")
+                        .addClass("border-transparent");
+                    fetchAndRenderFiles(); // Refresh gallery on tab switch
+                });
+
+                // Search functionality
+                $("#searchInput").on("input", function () {
+                    const query = this.value.toLowerCase();
+                    $.getJSON("/api/files", function (files) {
+                        const filteredFiles = files.filter((file) =>
+                            file.filename.toLowerCase().includes(query),
+                        );
+                        renderFiles(filteredFiles);
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

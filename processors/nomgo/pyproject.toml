@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "'"
+version = "0.1.0"
+description = ""
+authors = ["macadelic"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+nomic = "^3.3.0"
+openai = "^1.54.3"
+requests = "^2.32.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
