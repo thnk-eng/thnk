@@ -1,0 +1,23 @@
+<!-- templates/auth_app/social_login.html -->
+
+{% extends "auth_app/base.html" %}
+
+{% block title %}Social Login - Bubble Auth{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md px-4 sm:px-6 lg:px-8 mx-auto">
+        <div class="w-full max-w-sm mx-auto">
+            <div class="text-center">
+                <h2 class="font-medium text-xl text-gray-800">Login with {{ provider|title }}</h2>
+            </div>
+
+            <!-- Social Login Buttons -->
+            <div class="mt-6 space-y-4">
+                <a href="{% url 'social_callback' provider %}" class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Login with {{ provider|title }}</a>
+                <a href="{% url 'login' %}" class="w-full py-3 px-4 block text-center text-indigo-600 hover:text-indigo-500">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

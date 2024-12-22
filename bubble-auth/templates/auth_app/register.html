@@ -1,0 +1,106 @@
+{% extends "auth_app/base.html" %} {% block title %}Register - Bubble
+Auth{%endblock %} {% block content %}
+<div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md px-4 sm:px-6 lg:px-8 mx-auto">
+        <div class="w-full max-w-sm mx-auto">
+            {% if messages %} {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %} {% endif %}
+
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+
+                <div class="text-center">
+                    <h2 class="font-light text-2xl text-gray-800">
+                        Create Account
+                    </h2>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label
+                            for="id_email"
+                            class="block text-sm font-light text-gray-700"
+                            >Email</label
+                        >
+                        <input
+                            type="email"
+                            name="email"
+                            id="id_email"
+                            required
+                            class="w-full py-3 px-4 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            placeholder=""
+                        />
+                        {% if form.email.errors %}
+                        <p class="text-red-500 text-sm mt-1">
+                            {{ form.email.errors.0 }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label
+                            for="id_password"
+                            class="block text-sm font-light text-gray-700"
+                            >Password</label
+                        >
+                        <input
+                            type="password"
+                            name="password"
+                            id="id_password"
+                            required
+                            class="w-full py-3 px-4 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            placeholder=""
+                        />
+                        {% if form.password.errors %}
+                        <p class="text-red-500 text-sm mt-1">
+                            {{ form.password.errors.0 }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label
+                            for="id_password_confirm"
+                            class="block text-sm font-light text-gray-700"
+                            >Confirm Password</label
+                        >
+                        <input
+                            type="password"
+                            name="password_confirm"
+                            id="id_password_confirm"
+                            required
+                            class="w-full py-3 px-4 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            placeholder=""
+                        />
+                        {% if form.password_confirm.errors %}
+                        <p class="text-red-500 text-sm mt-1">
+                            {{ form.password_confirm.errors.0 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <button
+                        type="submit"
+                        class="w-full py-3 px-4 text-black bg-blue-100 hover:bg-slate-300 rounded-lg transition-colors"
+                    >
+                        Register
+                    </button>
+
+                    <p class="text-center">
+                        Already have an account?
+                        <a
+                            href="{% url 'login' %}"
+                            class="text-indigo-600 hover:text-indigo-500"
+                        >
+                            Log in
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

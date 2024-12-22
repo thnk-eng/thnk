@@ -1,0 +1,1 @@
+- apparently when static files are collected in a django project - it turns it into a javascript project in terms of the most code. who knew.. im lost

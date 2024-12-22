@@ -1,0 +1,51 @@
+# k8s/deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bubble-auth-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: bubble-auth
+  template:
+    metadata:
+      labels:
+        app: bubble-auth
+    spec:
+      containers:
+      - name: bubble-auth
+        image: gcr.io/<your-gcp-project-id>/bubble-auth:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: bubble-auth-config
+        - secretRef:
+            name: bubble-auth-secret
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/credentials.json
+        volumeMounts:
+        - name: google-credentials
+          mountPath: /var/secrets/google
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+      - name: google-credentials
+        secret:
+          secretName: bubble-auth-secret
+          items:
+            - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
+              path: credentials.json

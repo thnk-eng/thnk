@@ -1,0 +1,10 @@
+# k8s/configmap.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bubble-auth-config
+data:
+  DJANGO_SETTINGS_MODULE: "bubble_auth.settings"
+  DEBUG: "False"
+  USE_CLOUD_STORAGE: "True"

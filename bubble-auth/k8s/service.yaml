@@ -1,0 +1,14 @@
+# k8s/service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: bubble-auth-service
+spec:
+  selector:
+    app: bubble-auth
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer

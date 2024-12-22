@@ -1,0 +1,18 @@
+<!-- templates/auth_app/profile.html -->
+
+{% extends "auth_app/base.html" %}
+
+{% block title %}Profile - Bubble Auth{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 my-5 sm:px-6 lg:px-8">
+    <h1 class="text-2xl font-bold mt-8">Your Profile</h1>
+    <p class="mt-4"><strong>Email:</strong> {{ user.email }}</p>
+
+    <div class="mt-6 space-x-4">
+        <a href="{% url 'profile_edit' %}" class="inline-block py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"> Edit Profile </a>
+        <a href="{% url 'password_change' %}" class="inline-block py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"> Change Password </a>
+        <a href="{% url 'logout' %}" class="inline-block py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700"> Logout </a>
+    </div>
+</div>
+{% endblock %}

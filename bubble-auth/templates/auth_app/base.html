@@ -1,0 +1,52 @@
+<!-- templates/auth_app/base.html -->
+
+{% load static %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Bubble Auth{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+        <!-- Include any additional CSS here -->
+    </head>
+    <body>
+        <!-- HEADER -->
+        <header>
+            <nav class="p-4"><!-- bg-slate-200  -->
+                <div class="container mx-auto flex justify-between">
+                    <a href="{% url 'dashboard' %}" class="text-gray-800 text-lg font-light">Bubble Auth Service</a>
+                    <div>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'profile' %}" class="text-gray-800 hover:text-black px-3 font-light">Profile</a>
+                            <a href="{% url 'logout' %}" class="text-gray-800 hover:text-black px-3 font-light">Logout</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="text-gray-800 hover:text-black px-3 font-light">Login</a>
+                            <a href="{% url 'register' %}" class="text-gray-800 hover:text-black px-3 font-light">Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+            <script src="https://storage.googleapis.com/pre-line-cdn/google_preline.js"></script>
+            <script src="https://storage.googleapis.com/pre-line-cdn/tailwind.js"></script>
+        </header>
+        <!-- END HEADER -->
+
+        <!-- MAIN CONTENT -->
+        <main>
+            {% block content %}
+            <!-- Page-specific content will be injected here -->
+            {% endblock %}
+        </main>
+        <!-- END MAIN CONTENT -->
+
+        <!-- FOOTER -->
+        <footer class="bg-transparent text-black p-4 text-center font-light">
+            &copy; {{ current_year }} Bubble Auth. All rights reserved.
+        </footer>
+        <!-- END FOOTER -->
+
+        <!-- Include your JavaScript files -->
+        <script src="{% static 'js/main.js' %}"></script>
+        <!-- Include any additional JS here -->
+    </body>
+</html>

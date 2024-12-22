@@ -1,0 +1,30 @@
+<!-- templates/auth_app/dashboard.html -->
+
+{% extends "auth_app/base.html" %}
+
+{% block title %}Dashboard - Bubble Auth{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto flex justify-between">
+<div class="container mx-auto px-4 my-5 sm:px-6 lg:px-8">
+    <h1 class="text-xl  font-light mt-8">Welcome,  {{ request.user.email }}</h1>
+    <div class="flex-col flex justify-middle align-center">
+        <div class="my-5 text-center">
+            <p class="mt-4 text-5xl font-extralight">Let's begin a new journey.</p>
+        </div>
+        <div class="my-5 text-center">
+            <p class="mt-4 text-3xl font-extralight">Click one of the buttons below to begin, </p>
+            <p class="text-3xl font-extralight">click the profile button that's way the hell over there </p>
+            <p class="text-3xl mt-2 font-extralight">If you want to head there and set things up</p>
+            <p class="text-3xl font-extralight">Or we can take a deep dive into the bubble.</p>
+        </div>
+        <div class="mt-6 ">
+            <!--<a href="{#  url 'logout'  #}" class="inline-block py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700"> Logout </a>-->
+            <a href="{% url 'profile' %}" class="inline-block py-2 px-4 bg-slate-300 text-black rounded-lg hover:bg-slate-200"> Profile </a>
+        </div>
+    </div>
+
+</div>
+  
+  </div>
+{% endblock %}

@@ -1,0 +1,16 @@
+<!-- templates/auth_app/social_callback.html -->
+
+{% extends "auth_app/base.html" %}
+
+{% block title %}Social Callback - Bubble Auth{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md px-4 sm:px-6 lg:px-8 mx-auto text-center">
+        <div class="w-full max-w-sm mx-auto">
+            <h2 class="font-medium text-xl text-gray-800">Processing {{ provider|title }} Login...</h2>
+            <!-- Add spinner or loading indicator here -->
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+# k8s/ingress.yaml
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bubble-auth-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "bubble-auth-ip"
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+  - host: your-domain.com
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: bubble-auth-service
+            port:
+              number: 80
