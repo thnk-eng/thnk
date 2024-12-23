@@ -39,6 +39,16 @@ group :test do
   gem 'rails-controller-testing'
 end
 
+group :custom do
+  gem 'calypso', path: 'gems/calypso'
+  gem 'envo', path: 'gems/envo'
+  gem 'heed', path: 'gems/heed'
+  gem 'informants', path: 'gems/informants'
+  gem 'jm_jwt', path: 'gems/jm_jwt'
+  gem 'jwt_engin', path: 'gems/jwt_engin'
+  gem 'lowkey', path: 'gems/lowkey'
+end
+
 group :test, :development do
   gem 'awesome_print'
   gem 'brakeman'

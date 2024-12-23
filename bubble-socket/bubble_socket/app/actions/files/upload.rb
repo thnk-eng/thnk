@@ -17,7 +17,7 @@ module BubbleSocket
             response.render view('success', file_id: openai_response.id)
           rescue => e
             response.status = 500
-            response.render view('error', error: "Failed to upload file to OpenAI: #{e.message}")
+            response.render view('error', error: "Failed to upload file to AI: #{e.message}")
           end
         end
       end
