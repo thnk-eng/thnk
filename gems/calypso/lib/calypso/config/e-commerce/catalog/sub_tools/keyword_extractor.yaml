@@ -1,0 +1,28 @@
+name: keyword_extractor
+description: >
+  Extract relevant SEO keywords from product descriptions and image analysis results.
+endpoint: /api/tools/keyword-extractor
+method: POST
+parameters:
+  type: object
+  properties:
+    existing_description:
+      type: string
+      description: Existing description of the product
+    image_analysis_results:
+      type: object
+      description: Results from image analysis tools (e.g., Detectron2, YOLO_V8)
+  additional_properties: false
+  required:
+    - existing_description
+    - image_analysis_results
+response:
+  type: object
+  properties:
+    keywords:
+      type: array
+      items:
+        type: string
+      description: Extracted SEO keywords
+  additional_properties: false
+sub_tools: []

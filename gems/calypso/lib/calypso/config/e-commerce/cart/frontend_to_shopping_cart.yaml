@@ -1,0 +1,59 @@
+tool:
+    - name: frontend_to_shopping_cart
+      description: Manage the user's shopping cart
+      strict: true
+      endpoint: /api/cart
+      method: POST
+      parameters:
+        type: object
+        properties:
+          user_id:
+            type: string
+            description: The unique identifier of the user
+          action:
+            type: string
+            enum: [ add, remove, update, get ]
+            description: The action to perform on the cart
+          product_id:
+            type: string
+            description: The ID of the product to act upon (for add, remove, update)
+          quantity:
+            type: integer
+            description: The quantity of the product (for add or update actions)
+        additional_properties: false
+        required:
+          - user_id
+          - action
+      response:
+        type: object
+        properties:
+          cart:
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: string
+                    name:
+                      type: string
+                    quantity:
+                      type: integer
+                    price:
+                      type: number
+                    total_price:
+                      type: number
+              total_items:
+                type: integer
+              subtotal:
+                type: number
+          action_result:
+            type: string
+            description: Result of the requested action (e.g., "Item added", "Cart updated")
+      sub_tools:
+        - cart_item_management
+        - cart_total_calculation
+        - cart_persistence
+        - cross_sell_suggestions

@@ -1,0 +1,41 @@
+algorithm:
+  name: EuclideanDistance
+  description: >
+    Computes the Euclidean distance between two points in Euclidean space. This is the "ordinary" straight-line distance between two points.
+  type: distance_measure
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      point_a:
+        type: array
+        items:
+          type: number
+        description: >
+          The coordinates of the first point.
+      point_b:
+        type: array
+        items:
+          type: number
+        description: >
+          The coordinates of the second point.
+    additional_properties: false
+    required:
+      - point_a
+      - point_b
+  response:
+    type: object
+    properties:
+      euclidean_distance:
+        type: number
+        description: >
+          The Euclidean distance between point_a and point_b.
+  dependencies:
+    libraries:
+      - name: numpy
+        version: ">=1.18.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid input points. Ensure both points are non-empty and of the same dimension.
+    - code: 500
+      message: Internal Server Error - Error occurred while calculating Euclidean distance.

@@ -1,0 +1,18 @@
+query {
+    newestProducts: products(first: 5, reverse: true) {
+        edges {
+            node {
+                id
+                title
+            }
+        }
+    }
+    oldestProducts: products(first: 5) {
+        edges {
+            node {
+                id
+                title
+            }
+        }
+    }
+}

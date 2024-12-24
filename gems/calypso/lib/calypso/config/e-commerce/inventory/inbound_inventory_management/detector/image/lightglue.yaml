@@ -1,0 +1,43 @@
+name: lightglue
+description: LightGlue for feature matching between images
+endpoint: /api/inventory/detect/lightglue
+method: POST
+parameters:
+  type: object
+  properties:
+    image1:
+      type: string
+      format: binary
+      description: The first image file for feature matching
+    image2:
+      type: string
+      format: binary
+      description: The second image file for feature matching
+  required:
+    - image1
+    - image2
+  additional_properties: false
+response:
+  type: object
+  properties:
+    keypoints:
+      type: array
+      items:
+        type: array
+        items:
+          type: number
+          format: float
+        minItems: 2
+        maxItems: 2
+      description: List of keypoints detected in the images
+    matches:
+      type: array
+      items:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+      description: List of matched keypoint indices between the two images
+  additional_properties: false
+sub_tools: []

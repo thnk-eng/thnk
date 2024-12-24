@@ -1,0 +1,47 @@
+name: SAM_2
+description: Segment Anything Model for image segmentation
+endpoint: /api/inventory/detect/sam
+method: POST
+parameters:
+  type: object
+  properties:
+    image:
+      type: string
+      format: binary
+      description: The image file to segment
+    points:
+      type: array
+      items:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+      description: Optional points to guide segmentation (e.g., [x, y] coordinates)
+  required:
+    - image
+  additional_properties: false
+response:
+  type: object
+  properties:
+    segmentation_results:
+      type: array
+      items:
+        type: object
+        properties:
+          mask:
+            type: string
+            description: Base64 encoded binary mask of the segmented area
+          bbox:
+            type: array
+            items:
+              type: integer
+            minItems: 4
+            maxItems: 4
+            description: Bounding box coordinates [x, y, width, height]
+          confidence:
+            type: number
+            format: float
+            description: Confidence score of the segmentation
+  additional_properties: false
+sub_tools: []

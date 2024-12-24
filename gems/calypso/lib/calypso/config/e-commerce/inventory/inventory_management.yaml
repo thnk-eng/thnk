@@ -1,0 +1,217 @@
+name: inventory_management
+description: Toolchain for inventory management and e-commerce operations
+base_endpoint: /api/v1/bubble/inventory
+
+components:
+  - stock_tracking
+  - order_fulfillment
+  - reorder_management
+  - supplier_integration
+  - warehouse_management
+  - inbound_processing
+
+tools:
+  - name: get_inventory_levels
+    description: Retrieve current inventory levels for specified products
+    endpoint: /levels
+    method: GET
+    parameters:
+      type: object
+      properties:
+        product_ids:
+          type: array
+          items:
+            type: string
+          description: List of product IDs to check inventory for
+        warehouse_id:
+          type: string
+          description: Specific warehouse to check inventory (optional)
+      required:
+        - product_ids
+      additional_properties: false
+    response:
+      type: object
+      properties:
+        inventory_levels:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              quantity:
+                type: integer
+              warehouse_id:
+                type: string
+              status:
+                type: string
+                enum: [in_stock, low_stock, out_of_stock]
+      additional_properties: false
+
+  - name: update_inventory
+    description: Update inventory levels for specified products
+    endpoint: /update
+    method: POST
+    parameters:
+      type: object
+      properties:
+        updates:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              quantity_change:
+                type: integer
+              warehouse_id:
+                type: string
+      required:
+        - updates
+      additional_properties: false
+    response:
+      type: object
+      properties:
+        success:
+          type: boolean
+        updated_products:
+          type: array
+          items:
+            type: string
+      additional_properties: false
+
+  - name: generate_reorder_report
+    description: Generate a report of products that need reordering
+    endpoint: /reorder-report
+    method: GET
+    parameters:
+      type: object
+      properties:
+        threshold:
+          type: integer
+          description: Minimum stock level to trigger reorder recommendation
+        category:
+          type: string
+          description: Filter by product category (optional)
+      required:
+        - threshold
+      additional_properties: false
+    response:
+      type: object
+      properties:
+        reorder_recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              current_stock:
+                type: integer
+              recommended_order_quantity:
+                type: integer
+              supplier_id:
+                type: string
+      additional_properties: false
+
+  - name: process_inbound_shipment
+    description: Process and record an inbound shipment of inventory
+    endpoint: /inbound
+    method: POST
+    parameters:
+      type: object
+      properties:
+        shipment_id:
+          type: string
+        supplier_id:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              quantity:
+                type: integer
+              lot_number:
+                type: string
+        warehouse_id:
+          type: string
+      required:
+        - shipment_id
+        - supplier_id
+        - items
+        - warehouse_id
+      additional_properties: false
+    response:
+      type: object
+      properties:
+        success:
+          type: boolean
+        processed_items:
+          type: integer
+        inventory_updates:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              new_quantity:
+                type: integer
+      additional_properties: false
+
+integrations:
+  detector:
+    description: Integration with the image-based detector for inbound inventory processing
+    config_file: inbound_inventory_management/detector/detect_from_image.yaml
+    sub_tools:
+      - name: SAM_2
+        config_file: inbound_inventory_management/detector/image/SAM_2.yaml
+      - name: YOLO_V8
+        config_file: inbound_inventory_management/detector/image/YOLO_V8.yaml
+      - name: Detectron2
+        config_file: inbound_inventory_management/detector/image/Detectron2.yaml
+      - name: lightglue
+        config_file: inbound_inventory_management/detector/image/lightglue.yaml
+    use_cases:
+      - automated_item_counting
+      - damage_detection
+      - product_verification
+
+workflows:
+  - name: inbound_processing
+    steps:
+      - receive_shipment
+      - image_based_detection:
+          tool: detector
+          config: inbound_inventory_management/detector/detect_from_image.yaml
+          sub_tools:
+            - SAM_2
+            - YOLO_V8
+            - Detectron2
+            - lightglue
+      - quantity_verification
+      - quality_check
+      - inventory_update
+      - storage_assignment
+
+  - name: reorder_processing
+    steps:
+      - generate_reorder_report
+      - supplier_order_placement
+      - order_tracking
+      - inbound_shipment_scheduling
+
+alerts:
+  - low_stock
+  - overstock
+  - inventory_discrepancy
+  - failed_reorder
+
+reporting:
+  - daily_stock_levels
+  - weekly_reorder_summary
+  - monthly_inventory_valuation
+  - supplier_performance

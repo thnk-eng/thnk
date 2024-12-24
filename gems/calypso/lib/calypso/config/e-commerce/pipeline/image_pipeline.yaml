@@ -1,0 +1,120 @@
+pipeline:
+  name: ImageIngestionPipeline
+  description: >
+    Pipeline for ingesting an image, running it through SAM, Detectron2, YOLO, generating vector embeddings, and retrieving results.
+
+  steps:
+    - name: image_upload
+      description: "Handles image upload from the UI dropzone."
+      input:
+        - image
+      output:
+        - image_path: "/uploads/{{filename}}"
+      task:
+        type: upload
+        target: "/uploads"
+
+    - name: image_preprocessing
+      description: "Preprocesses the uploaded image for model ingestion."
+      input:
+        - image_path
+      output:
+        - processed_image
+      task:
+        type: image_processing
+        operation: resize
+        parameters:
+          width: 512
+          height: 512
+
+    - name: sam_analysis
+      description: "Run image through the Segment Anything Model (SAM)."
+      input:
+        - processed_image
+      output:
+        - sam_segmentation_results
+      task:
+        type: api_call
+        endpoint: /api/inventory/detect/sam
+        method: POST
+        parameters:
+          image: "{{processed_image}}"
+          points: []
+
+    - name: yolo_analysis
+      description: "Run object detection using YOLOv8 on the image."
+      input:
+        - processed_image
+      output:
+        - yolo_detections
+      task:
+        type: api_call
+        endpoint: /api/inventory/detect/yolo
+        method: POST
+        parameters:
+          image: "{{processed_image}}"
+          confidence_threshold: 0.5
+
+    - name: detectron_analysis
+      description: "Run object detection using Detectron2 on the image."
+      input:
+        - processed_image
+      output:
+        - detectron_detections
+      task:
+        type: api_call
+        endpoint: /api/inventory/detect/detectron2
+        method: POST
+        parameters:
+          image: "{{processed_image}}"
+          model: "faster_rcnn"
+
+    - name: vector_embedding_generation
+      description: "Generate vector embeddings from the image for similarity search."
+      input:
+        - processed_image
+      output:
+        - vector_embedding
+      task:
+        type: embedding_generation
+        model: "resnet50"  # Example model
+        parameters:
+          image: "{{processed_image}}"
+
+    - name: store_embedding
+      description: "Store the vector embedding in the vector database (e.g., FAISS)."
+      input:
+        - vector_embedding
+      output:
+        - embedding_store_status
+      task:
+        type: embedding_store
+        target: "/faiss/embedding_store"
+        parameters:
+          embedding: "{{vector_embedding}}"
+
+    - name: retrieve_similar_images
+      description: "Retrieve similar images based on vector embeddings."
+      input:
+        - vector_embedding
+      output:
+        - similar_images
+      task:
+        type: retrieval
+        target: "/faiss/search"
+        parameters:
+          embedding: "{{vector_embedding}}"
+
+    - name: finalize_pipeline
+      description: "Final step to return results from the analyses and retrieval."
+      input:
+        - sam_segmentation_results
+        - yolo_detections
+        - detectron_detections
+        - similar_images
+      output:
+        - final_results:
+            - segmentation_results: "{{sam_segmentation_results}}"
+            - yolo_detections: "{{yolo_detections}}"
+            - detectron_detections: "{{detectron_detections}}"
+            - similar_images: "{{similar_images}}"

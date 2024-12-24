@@ -1,0 +1,71 @@
+algorithm:
+  name: ScaNN
+  description: >
+    Implements ScaNN (Scalable Nearest Neighbors) for high-performance and accurate approximate nearest neighbor searches.
+    Optimized for scalability and low latency, suitable for large-scale and real-time vector search applications.
+  type: vector_search
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      similarity_measure:
+        type: string
+        description: >
+          The similarity measure to use (e.g., dot_product, cosine, L2).
+        enum: [ dot_product, cosine, L2 ]
+        default: cosine
+      num_neighbors:
+        type: integer
+        description: >
+          The number of nearest neighbors to retrieve for each query.
+        default: 10
+      num_reordering_candidates:
+        type: integer
+        description: >
+          The number of candidates to consider for reordering to improve accuracy.
+        default: 100
+      distance_measure:
+        type: string
+        description: >
+          The distance measure to use for candidate retrieval (e.g., dot_product, cosine, L2).
+        enum: [ dot_product, cosine, L2 ]
+        default: cosine
+      preprocess_type:
+        type: string
+        description: >
+          The type of preprocessing to apply to vectors (e.g., L2_normalize).
+        enum: [ L2_normalize, none ]
+        default: L2_normalize
+    additional_properties: false
+    required:
+      - similarity_measure
+      - num_neighbors
+  response:
+    type: object
+    properties:
+      search_results:
+        type: array
+        description: >
+          A list of nearest neighbors for the query vector.
+        items:
+          type: object
+          properties:
+            vector_id:
+              type: integer
+              description: >
+                The identifier of the nearest vector.
+            similarity_score:
+              type: number
+              description: >
+                The similarity score between the query vector and the nearest vector.
+  dependencies:
+    libraries:
+      - name: scann
+        version: ">=1.0.0"
+      - name: numpy
+        version: ">=1.18.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid parameters. Ensure all required fields are provided with valid values.
+    - code: 500
+      message: Internal Server Error - Error occurred during ScaNN index creation or search.

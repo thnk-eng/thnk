@@ -1,0 +1,25 @@
+mutation collectionAddProducts($id: ID!, $productIds: [ID!]!) {
+    collectionAddProducts(id: $id, productIds: $productIds) {
+        collection {
+            id
+            title
+            products(first: 10) {
+                nodes {
+                    id
+                    title
+                }
+            }
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+# {
+#  "id": "gid://shopify/Collection/-1",
+#  "productIds": [
+#    "gid://shopify/Product/108828309"
+#  ]
+#}

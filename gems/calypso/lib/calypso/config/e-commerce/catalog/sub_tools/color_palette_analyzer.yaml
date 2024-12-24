@@ -1,0 +1,33 @@
+name: color_palette_analyzer
+description: Analyze the color palette of an image to extract dominant colors
+endpoint: /api/tools/color-palette-analyzer
+method: POST
+parameters:
+  type: object
+  properties:
+    image:
+      type: string
+      format: binary
+      description: The image file to analyze for color palette
+    num_colors:
+      type: integer
+      description: Number of dominant colors to extract
+      default: 5
+      minimum: 1
+      maximum: 20
+  required:
+    - image
+  additional_properties: false
+response:
+  type: object
+  properties:
+    dominant_colors:
+      type: array
+      items:
+        type: string
+        description: Hexadecimal color codes representing dominant colors
+    num_colors_extracted:
+      type: integer
+      description: Number of colors extracted
+  additional_properties: false
+sub_tools: []

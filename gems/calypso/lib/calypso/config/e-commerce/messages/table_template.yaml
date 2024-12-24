@@ -1,0 +1,9 @@
+name: table_template
+description: >
+  ERB template for formatting markdown tables.
+template: |
+  | <%= headers.join(' | ') %> |
+  | <%= headers.map { '---' }.join(' | ') %> |
+  <% rows.each do |row| %>
+  | <%= row.join(' | ') %> |
+  <% end %>

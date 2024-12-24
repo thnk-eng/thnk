@@ -1,0 +1,71 @@
+algorithm:
+  name: ElasticSearchVectorSearch
+  description: >
+    Implements vector search capabilities using ElasticSearch's dense vector fields and similarity queries.
+    Enables semantic search and high-dimensional similarity searches within ElasticSearch indices.
+  type: vector_search
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      index_name:
+        type: string
+        description: >
+          The name of the ElasticSearch index to perform the vector search on.
+      vector_field:
+        type: string
+        description: >
+          The name of the dense vector field in the ElasticSearch index.
+      query_vector:
+        type: array
+        items:
+          type: number
+        description: >
+          The vector to search for similar vectors within the index.
+      top_k:
+        type: integer
+        description: >
+          The number of top similar vectors to retrieve.
+        default: 10
+      similarity_metric:
+        type: string
+        description: >
+          The similarity metric to use (e.g., cosine, dot_product, l2_norm).
+        enum: [ cosine, dot_product, l2_norm ]
+        default: cosine
+    additional_properties: false
+    required:
+      - index_name
+      - vector_field
+      - query_vector
+  response:
+    type: object
+    properties:
+      search_results:
+        type: array
+        description: >
+          A list of nearest neighbors for the query vector.
+        items:
+          type: object
+          properties:
+            document_id:
+              type: string
+              description: >
+                The identifier of the document containing the similar vector.
+            similarity_score:
+              type: number
+              description: >
+                The similarity score between the query vector and the indexed vector.
+  dependencies:
+    libraries:
+      - name: elasticsearch
+        version: ">=7.0.0"
+      - name: numpy
+        version: ">=1.18.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid parameters. Ensure all required fields are provided with valid values.
+    - code: 404
+      message: Not Found - Specified index or vector field does not exist.
+    - code: 500
+      message: Internal Server Error - Error occurred during ElasticSearch vector search.

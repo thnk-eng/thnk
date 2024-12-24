@@ -1,0 +1,87 @@
+tool:
+    - name: send_order_confirmation_email
+      description: Send an order confirmation email to the customer using specified templates
+      strict: true
+      endpoint: /api/checkout/email
+      method: POST
+      parameters:
+        type: object
+        properties:
+          order_id:
+            type: string
+            description: The unique identifier of the order
+          customer_email:
+            type: string
+            format: email
+            description: The email address of the customer
+          language:
+            type: string
+            description: The preferred language for the email
+          template:
+            type: string
+            enum: [ order_confirmation, shipment_tracking ]
+            description: The email template to use
+          order_details:
+            type: object
+            description: Details of the order to be included in the email
+            properties:
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_name:
+                      type: string
+                    quantity:
+                      type: integer
+                    price:
+                      type: number
+              total_amount:
+                type: number
+              shipping_address:
+                type: object
+                properties:
+                  street:
+                    type: string
+                  city:
+                    type: string
+                  country:
+                    type: string
+                  postal_code:
+                    type: string
+          tracking_info:
+            type: object
+            description: Shipping and tracking information (required for shipment_tracking template)
+            properties:
+              carrier:
+                type: string
+              tracking_number:
+                type: string
+              estimated_delivery:
+                type: string
+                format: date
+        additional_properties: false
+        required:
+          - order_id
+          - customer_email
+          - language
+          - template
+          - order_details
+      response:
+        type: object
+        properties:
+          success:
+            type: boolean
+            description: Indicates whether the email was sent successfully
+          message:
+            type: string
+            description: A message describing the result of the operation
+          email_id:
+            type: string
+            description: A unique identifier for the sent email (if successful)
+      sub_tools:
+        - email_template_selection
+        - localization
+        - attachment_generation
+        - email_scheduling
+        - delivery_tracking

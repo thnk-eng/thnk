@@ -1,0 +1,160 @@
+tool:
+    name: shippo_batch_tool
+    description: Create batch shipments with multiple carriers and service levels. The batch shipment object is a wrapper around a shipment object, which includes shipment-specific information for batch processing.
+    strict: true
+    endpoint: /api/batch_shipments
+    method: POST
+    parameters:
+      type: object
+      properties:
+        default_carrier_account:
+          type: string
+        default_servicelevel_token:
+          type: string
+        label_filetype:
+          type: string
+        metadata:
+          type: string
+        batch_shipments:
+          type: array
+          items:
+            type: object
+            properties:
+              carrier_account:
+                type: string
+                description: EXAMPLE => a4391cd4ab974f478f55dc08b5c8e3b3
+              metadata:
+                type: string
+                description: EXAMPLE => SHIPMENT #1
+              servicelevel_token:
+                type: string
+                description: EXAMPLE => fedex_ground
+              messages:
+                type: array
+                description: EXAMPLE => []
+              object_id:
+                type: string
+                description: EXAMPLE => e11c95a6788d4ddcaa22f03175838740
+              shipment:
+                type: string
+                description: EXAMPLE => adcfdddf8ec64b84ad22772bce3ea37a
+              status:
+                type: string
+                description: EXAMPLE => INVALID
+              transaction:
+                type: string
+                description: EXAMPLE => 4c33736a67e2450da88b38c42deef6b7
+              shipment_details:
+                type: object
+                properties:
+                  extra:
+                    type: object
+                  metadata:
+                    type: string
+                  shipment_date:
+                    type: string
+                    format: date-time
+                  address_from:
+                    ref: '#/definitions/address'
+                  address_return:
+                    ref: '#/definitions/address'
+                  address_to:
+                    ref: '#/definitions/address'
+                  customs_declaration:
+                    type: object
+                  async:
+                    type: boolean
+                  carrier_accounts:
+                    type: array
+                    items:
+                      type: string
+                  parcels:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        extra:
+                          type: object
+                        metadata:
+                          type: string
+                        mass_unit:
+                          type: string
+                        weight:
+                          type: string
+                        distance_unit:
+                          type: string
+                        height:
+                          type: string
+                        length:
+                          type: string
+                        width:
+                          type: string
+      required:
+        - batch_shipments
+    definitions:
+      address:
+        type: object
+        properties:
+          name:
+            type: string
+          company:
+            type: string
+          street1:
+            type: string
+          street2:
+            type: string
+          street3:
+            type: string
+          street_no:
+            type: string
+          city:
+            type: string
+          state:
+            type: string
+          zip:
+            type: string
+          country:
+            type: string
+          phone:
+            type: string
+          email:
+            type: string
+          is_residential:
+            type: boolean
+          metadata:
+            type: string
+          validate:
+            type: boolean
+    response:
+      type: object
+      properties:
+        batch_id:
+          type: string
+        status:
+          type: string
+        shipments:
+          type: array
+          items:
+            type: object
+            properties:
+              shipment_id:
+                type: string
+              status:
+                type: string
+              label_url:
+                type: string
+              tracking_number:
+                type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+    sub_tools:
+      - batch_status_checker
+      - label_downloader
+      - tracking_updater

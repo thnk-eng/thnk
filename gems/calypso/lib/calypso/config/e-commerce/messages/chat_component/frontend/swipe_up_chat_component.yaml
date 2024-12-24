@@ -1,0 +1,97 @@
+frontend:
+  name: SwipeUpChatComponent
+  description: >
+    A chat interface accessible via a swipe-up gesture or click on every page, allowing real-time interaction with the AI assistant.
+  layout:
+    type: overlay
+    trigger:
+      type: swipe_up_or_click
+      area: bottom_center
+      height: 4rem
+    transition:
+      type: slide
+      direction: up
+      duration: 0.3s
+    components:
+      - type: chat_handle
+        name: chat_handle
+        style:
+          background_color: "#f5f5f5"
+          text_color: "#333333"
+          icon: up_arrow
+          text: "Swipe up or click to chat"
+          alignment: center
+          padding: "1rem"
+      - type: chat_window
+        name: chat_window
+        visibility: hidden
+        style:
+          background_color: "#ffffff"
+          height: 75vh
+          overflow_y: auto
+          padding: "1rem"
+          position: fixed
+          bottom: 0
+          left: 0
+          right: 0
+      - type: chat_messages
+        name: chat_messages
+        data_binding: messages
+      - type: chat_input
+        name: chat_input
+        placeholder: "Enter your message here"
+        required: true
+        action: send_message
+      - type: send_button
+        name: send_button
+        text: "Send"
+        style:
+          background_color: "#007bff"
+          text_color: "#ffffff"
+        action: send_message
+  interactions:
+    - event: trigger_activated
+      actions:
+        - show_component: chat_window
+        - hide_component: chat_handle
+    - event: trigger_deactivated
+      actions:
+        - hide_component: chat_window
+        - show_component: chat_handle
+    - event: send_message
+      actions:
+        - validate_input: chat_input
+        - if_valid:
+            - action: call_backend
+              endpoint: /api/chat
+              method: POST
+              parameters:
+                user_message: "{{ chat_input.value }}"
+                user_id: "{{ user_id }}"
+                session_id: "{{ session_id }}"
+                context_data: "{{ context_data }}"
+              response_handling:
+                - update_data: messages.append(response.message)
+                - clear_input: chat_input
+        - if_invalid:
+            - show_error: "Please enter a message."
+  data:
+    messages: []
+    context_data:
+      user_id: "{{ user_id }}"
+      session_id: "{{ session_id }}"
+      page_context:
+        url: "{{ current_page_url }}"
+        page_type: "{{ current_page_type }}"
+        metadata: "{{ current_page_metadata }}"
+      user_interactions: "{{ recent_user_interactions }}"
+  security:
+    data_privacy:
+      consent_prompt: "Do you agree to share your browsing data to enhance your experience?"
+      consent_required: true
+  error_handling:
+    type: alert
+    components:
+      - type: text
+        content: "An error occurred while processing your request. Please try again."
+        class: "error-message"

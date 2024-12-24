@@ -1,0 +1,68 @@
+tool:
+  - name: frontend_to_shipping_calculator
+    description: Calculate shipping options and costs
+    strict: true
+    endpoint: /api/shipping
+    method: POST
+    parameters:
+      type: object
+      properties:
+        destination:
+          type: object
+          properties:
+            country:
+              type: string
+            postal_code:
+              type: string
+          description: The shipping destination
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              quantity:
+                type: integer
+              weight:
+                type: number
+              dimensions:
+                type: object
+                properties:
+                  length:
+                    type: number
+                  width:
+                    type: number
+                  height:
+                    type: number
+          description: The items to be shipped
+      additional_properties: false
+      required:
+        - destination
+        - items
+    response:
+      type: object
+      properties:
+        shipping_options:
+          type: array
+          items:
+            type: object
+            properties:
+              carrier:
+                type: string
+              service:
+                type: string
+              estimated_delivery:
+                type: string
+                format: date
+              cost:
+                type: number
+        total_weight:
+          type: number
+        message:
+          type: string
+    sub_tools:
+      - carrier_rate_fetcher
+      - delivery_time_estimator
+      - package_optimizer
+      - customs_documentation_generator

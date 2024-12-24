@@ -1,0 +1,56 @@
+tool:
+  - name: checkout_payment_processing
+    description: Process payment for the order
+    strict: true
+    endpoint: /api/checkout/payment
+    method: POST
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        order_id:
+          type: string
+          description: The unique identifier of the order
+        payment_method:
+          type: string
+          enum: [ credit_card, paypal, bank_transfer ]
+          description: The payment method to use
+        amount:
+          type: number
+          description: The total amount to charge
+        currency:
+          type: string
+          description: The currency of the payment
+        payment_details:
+          type: object
+          description: Details specific to the payment method
+      additional_properties: false
+      required:
+        - user_id
+        - order_id
+        - payment_method
+        - amount
+        - currency
+    response:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          description: Unique identifier for the payment transaction
+        status:
+          type: string
+          enum: [ success, pending, failed ]
+          description: The status of the payment transaction
+        message:
+          type: string
+          description: Additional information about the transaction
+    sub_tools:
+      - carrier_option
+      - payment_plan_custom
+      - subscription
+      - save_to_account
+      - fraud_detection
+      - payment_gateway_integration
+      - recurring_billing

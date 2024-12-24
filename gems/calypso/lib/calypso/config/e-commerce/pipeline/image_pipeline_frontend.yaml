@@ -1,0 +1,111 @@
+frontend:
+  name: RAG_Pipeline_Interface
+  description: >
+    User interface for uploading images, selecting analysis tasks, configuring embedding options,
+    and displaying analysis and embedding results.
+  layout:
+    type: form
+    action: /api/v1/rag/pipeline/process
+    method: POST
+    enctype: multipart/form-data
+    components:
+      - type: file_upload
+        name: image
+        label: Upload Image
+        accept: image/*
+        required: true
+        description: The image file to analyze
+      - type: checkbox_group
+        name: analysis_tasks
+        label: Select Analysis Tasks
+        options:
+          - label: Segmentation
+            value: segmentation
+          - label: Object Detection
+            value: object_detection
+          - label: Feature Matching
+            value: feature_matching
+        required: true
+        description: >
+          Choose the analysis tasks you want to perform on the uploaded image.
+      - type: collapsible_section
+        label: Embedding Settings
+        components:
+          - type: dropdown
+            name: embedding_model
+            label: Embedding Model
+            options:
+              - label: CLIP
+                value: clip
+              - label: ResNet
+                value: resnet
+              - label: ViT
+                value: vit
+            default: clip
+            description: Select the model to generate vector embeddings from the image.
+          - type: slider
+            name: embedding_dimensionality
+            label: Embedding Dimensionality
+            min: 128
+            max: 1024
+            step: 128
+            default: 512
+            description: >
+              Choose the size of the vector embeddings to generate.
+      - type: submit_button
+        text: Process Image
+  response_handling:
+    type: display
+    components:
+      - type: conditional
+        condition: "analysis_results"
+        components:
+          - type: section
+            label: Analysis Results
+            components:
+              - type: list
+                items:
+                  - type: text
+                    content: "Task: {{ item.task }}"
+                  - type: text
+                    content: "Result: {{ item.result_summary }}"
+      - type: conditional
+        condition: "embedding_results"
+        components:
+          - type: section
+            label: Embedding Results
+            components:
+              - type: text
+                content: "Vector Embedding: {{ embedding_results.vector }}"
+              - type: text
+                content: "Dimensionality: {{ embedding_results.dimensionality }}"
+      - type: section
+        label: Processing Time
+        components:
+          - type: text
+            content: "Total Processing Time: {{ processing_time }} seconds"
+  validations:
+    - field: image
+      validations:
+        - required: true
+        - file_type: ["image/jpeg", "image/png", "image/gif"]
+        - max_size: 10MB
+    - field: analysis_tasks
+      validations:
+        - required: true
+        - min_items: 1
+    - field: embedding_model
+      validations:
+        - type: string
+        - enum: ["clip", "resnet", "vit"]
+    - field: embedding_dimensionality
+      validations:
+        - type: integer
+        - min: 128
+        - max: 1024
+        - multiple_of: 128
+  error_handling:
+    type: alert
+    components:
+      - type: text
+        content: "An error occurred while processing the image. Please try again."

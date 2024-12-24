@@ -1,0 +1,45 @@
+name: object_detector
+description: Perform object detection on images to identify and classify objects
+endpoint: /api/tools/object-detector
+method: POST
+parameters:
+  type: object
+  properties:
+    image:
+      type: string
+      format: binary
+      description: The image file to perform object detection on
+    model:
+      type: string
+      enum: [ Detectron2, YOLO_V8 ]
+      description: The object detection model to use
+      default: YOLO_V8
+  required:
+    - image
+    - model
+  additional_properties: false
+response:
+  type: object
+  properties:
+    detected_objects:
+      type: array
+      items:
+        type: object
+        properties:
+          class:
+            type: string
+          confidence:
+            type: number
+            format: float
+          bbox:
+            type: array
+            items:
+              type: integer
+            minItems: 4
+            maxItems: 4
+            description: Bounding box coordinates [x, y, width, height]
+    model_used:
+      type: string
+      description: The model used for object detection
+  additional_properties: false
+sub_tools: []

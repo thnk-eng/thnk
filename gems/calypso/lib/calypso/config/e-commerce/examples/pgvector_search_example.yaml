@@ -1,0 +1,343 @@
+# search_examples.yaml
+
+examples:
+  - description: Install the pgvector extension and create a new database
+    sql_commands:
+      - CREATE DATABASE vec_store_dev;
+      - \c vec_store_dev  # Connect to the newly created database
+      - CREATE EXTENSION vector;
+
+  - description: Create a table with a vector column
+    sql_commands:
+      - |
+        CREATE TABLE items (
+          id BIGSERIAL PRIMARY KEY,
+          embedding VECTOR(3)
+        );
+
+  - description: Insert sample vectors into 'items' table
+    sql_commands:
+      - |
+        INSERT INTO items (embedding)
+        VALUES
+          ('[1,2,3]'),
+          ('[4,5,6]'),
+          ('[1,1,1]'),
+          ('[2,3,2]');
+
+  - description: Perform a simple nearest neighbor search using L2 distance
+    sql_commands:
+      - |
+        SELECT * FROM items
+        ORDER BY embedding <-> '[3,3,3]'
+        LIMIT 2;
+
+  - description: Perform a nearest neighbor search using cosine distance
+    sql_commands:
+      - |
+        SELECT * FROM items
+        ORDER BY embedding <=> '[3,3,3]'
+        LIMIT 2;
+
+  - description: Create an HNSW index for faster approximate search
+    sql_commands:
+      - |
+        CREATE INDEX ON items
+        USING hnsw (embedding vector_l2_ops);
+
+  - description: Set the 'ef_search' parameter for HNSW (trade-off between speed and accuracy)
+    sql_commands:
+      - SET hnsw.ef_search = 100;
+
+  - description: Perform the same search again using the HNSW index
+    sql_commands:
+      - |
+        SELECT * FROM items
+        ORDER BY embedding <-> '[3,3,3]'
+        LIMIT 2;
+
+  - description: Use the new 'halfvec' type introduced in pgvector 0.7.0
+    sql_commands:
+      - |
+        CREATE TABLE half_items (
+          id BIGSERIAL PRIMARY KEY,
+          embedding HALF_VEC(3)
+        );
+      - |
+        INSERT INTO half_items (embedding)
+        VALUES
+          ('[1,2,3]'),
+          ('[4,5,6]');
+      - |
+        SELECT * FROM half_items
+        ORDER BY embedding <-> '[3,3,3]'
+        LIMIT 1;
+
+  - description: Demonstrate binary vectors and Hamming distance
+    sql_commands:
+      - |
+        CREATE TABLE binary_items (
+          id BIGSERIAL PRIMARY KEY,
+          embedding BIT(3)
+        );
+      - |
+        INSERT INTO binary_items (embedding)
+        VALUES
+          ('000'),
+          ('111'),
+          ('101');
+      - |
+        SELECT * FROM binary_items
+        ORDER BY embedding <~> '110'
+        LIMIT 2;
+
+  - description: Show an example of a sparse vector
+    sql_commands:
+      - |
+        CREATE TABLE sparse_items (
+          id BIGSERIAL PRIMARY KEY,
+          embedding SPARSE_VEC(5)
+        );
+      - |
+        INSERT INTO sparse_items (embedding)
+        VALUES
+          ('{1:1,3:2,5:3}/5'),
+          ('{1:4,3:5,5:6}/5');
+      - |
+        SELECT * FROM sparse_items
+        ORDER BY embedding <-> '{1:3,3:1,5:2}/5'
+        LIMIT 1;
+
+  - description: Demonstrate hybrid search combining vector similarity and full-text search
+    sql_commands:
+      - |
+        CREATE TABLE text_items (
+          id BIGSERIAL PRIMARY KEY,
+          content TEXT,
+          embedding VECTOR(3)
+        );
+      - |
+        INSERT INTO text_items (content, embedding)
+        VALUES
+          ('The quick brown fox', '[1,2,3]'),
+          ('jumps over the lazy dog', '[4,5,6]');
+      - |
+        CREATE INDEX ON text_items
+        USING GIN (to_tsvector('english', content));
+      - |
+        SELECT id, content
+        FROM text_items, plainto_tsquery('quick fox') query
+        WHERE to_tsvector('english', content) @@ query
+        ORDER BY embedding <-> '[2,2,2]'
+        LIMIT 1;
+
+  - description: Create a table to store high-dimensional vectors (e.g., embeddings)
+    sql_commands:
+      - |
+        CREATE TABLE documents (
+          id SERIAL PRIMARY KEY,
+          content TEXT,
+          embedding VECTOR(1536)  -- Adjust dimension based on the embedding model used
+        );
+
+  - description: Insert data into 'documents' table
+    sql_commands:
+      - |
+        INSERT INTO documents (content, embedding)
+        VALUES
+          ('Sample text', '[0.1, 0.2, ..., 0.5]'::VECTOR);
+
+  - description: Create an index on the 'embedding' column for faster similarity search
+    sql_commands:
+      - |
+        CREATE INDEX ON documents
+        USING ivfflat (embedding vector_cosine_ops)
+        WITH (lists = 100);
+
+  - description: Perform a similarity search on 'documents' table
+    sql_commands:
+      - |
+        SELECT content,
+               embedding <=> '[0.2, 0.3, ..., 0.6]'::VECTOR AS distance
+        FROM documents
+        ORDER BY embedding <=> '[0.2, 0.3, ..., 0.6]'::VECTOR
+        LIMIT 5;
+
+  - description: Create a function for easier querying of similar documents
+    sql_commands:
+      - |
+        CREATE OR REPLACE FUNCTION match_documents(
+          query_embedding VECTOR(1536),
+          match_threshold FLOAT,
+          match_count INT
+        )
+        RETURNS TABLE(id INT, content TEXT, similarity FLOAT)
+        LANGUAGE plpgsql
+        AS $$
+        BEGIN
+          RETURN QUERY
+          SELECT
+            id,
+            content,
+            1 - (embedding <=> query_embedding) AS similarity
+          FROM documents
+          WHERE 1 - (embedding <=> query_embedding) > match_threshold
+          ORDER BY embedding <=> query_embedding
+          LIMIT match_count;
+        END;
+        $$;
+
+  - description: Use the 'match_documents' function
+    sql_commands:
+      - |
+        SELECT * FROM match_documents(
+          '[0.2, 0.3, ..., 0.6]'::VECTOR,
+          0.7,
+          10
+        );
+
+  - description: K-Nearest Neighbors (KNN) search function
+    sql_commands:
+      - |
+        CREATE OR REPLACE FUNCTION knn_search(
+          query_embedding VECTOR(1536),
+          k INTEGER
+        )
+        RETURNS TABLE(id INT, content TEXT, distance FLOAT)
+        LANGUAGE plpgsql
+        AS $$
+        BEGIN
+          RETURN QUERY
+          SELECT
+            id,
+            content,
+            embedding <-> query_embedding AS distance
+          FROM documents
+          ORDER BY embedding <-> query_embedding
+          LIMIT k;
+        END;
+        $$;
+
+  - description: Use the 'knn_search' function
+    sql_commands:
+      - |
+        SELECT * FROM knn_search(
+          '[0.1, 0.2, ..., 0.5]'::VECTOR,
+          5
+        );
+
+  - description: Batch KNN search function for multiple query vectors
+    sql_commands:
+      - |
+        CREATE OR REPLACE FUNCTION batch_knn_search(
+          query_embeddings VECTOR(1536)[],
+          k INTEGER
+        )
+        RETURNS TABLE(query_index INT, id INT, content TEXT, distance FLOAT)
+        LANGUAGE plpgsql
+        AS $$
+        BEGIN
+          RETURN QUERY
+          SELECT
+            q.query_index,
+            d.id,
+            d.content,
+            d.embedding <-> q.embedding AS distance
+          FROM
+            unnest(query_embeddings) WITH ORDINALITY AS q(embedding, query_index)
+          CROSS JOIN LATERAL (
+            SELECT id, content, embedding
+            FROM documents
+            ORDER BY embedding <-> q.embedding
+            LIMIT k
+          ) d
+          ORDER BY q.query_index, distance;
+        END;
+        $$;
+
+  - description: Use the 'batch_knn_search' function
+    sql_commands:
+      - |
+        SELECT * FROM batch_knn_search(
+          ARRAY[
+            '[0.1, 0.2, ..., 0.5]'::VECTOR,
+            '[0.3, 0.4, ..., 0.6]'::VECTOR
+          ],
+          3
+        );
+
+  - description: Approximate Nearest Neighbors (ANN) search using IVFFLAT index
+    sql_commands:
+      - |
+        CREATE INDEX ON documents
+        USING ivfflat (embedding vector_l2_ops)
+        WITH (lists = 100);
+
+  - description: ANN search function with adjustable 'probes' parameter
+    sql_commands:
+      - |
+        CREATE OR REPLACE FUNCTION ann_search(
+          query_embedding VECTOR(1536),
+          k INTEGER,
+          probes INTEGER
+        )
+        RETURNS TABLE(id INT, content TEXT, distance FLOAT)
+        LANGUAGE plpgsql
+        AS $$
+        BEGIN
+          SET LOCAL ivfflat.probes = probes;
+          RETURN QUERY
+          SELECT
+            id,
+            content,
+            embedding <-> query_embedding AS distance
+          FROM documents
+          ORDER BY embedding <-> query_embedding
+          LIMIT k;
+        END;
+        $$;
+
+  - description: Use the 'ann_search' function
+    sql_commands:
+      - |
+        SELECT * FROM ann_search(
+          '[0.1, 0.2, ..., 0.5]'::VECTOR,
+          5,
+          10
+        );
+
+  - description: Hybrid search combining vector similarity and text matching
+    sql_commands:
+      - |
+        CREATE OR REPLACE FUNCTION hybrid_search(
+          query_text TEXT,
+          query_embedding VECTOR(1536),
+          k INTEGER
+        )
+        RETURNS TABLE(id INT, content TEXT, similarity FLOAT, text_rank FLOAT)
+        LANGUAGE plpgsql
+        AS $$
+        BEGIN
+          RETURN QUERY
+          SELECT
+            id,
+            content,
+            1 - (embedding <=> query_embedding) AS similarity,
+            ts_rank(to_tsvector('english', content), plainto_tsquery('english', query_text)) AS text_rank
+          FROM documents
+          WHERE to_tsvector('english', content) @@ plainto_tsquery('english', query_text)
+          ORDER BY
+            (1 - (embedding <=> query_embedding)) * 0.7 +
+            ts_rank(to_tsvector('english', content), plainto_tsquery('english', query_text)) * 0.3 DESC
+          LIMIT k;
+        END;
+        $$;
+
+  - description: Use the 'hybrid_search' function
+    sql_commands:
+      - |
+        SELECT * FROM hybrid_search(
+          'sample query',
+          '[0.1, 0.2, ..., 0.5]'::VECTOR,
+          5
+        );

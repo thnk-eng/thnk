@@ -1,0 +1,50 @@
+tool:
+  - name: checkout_shipping_options
+    description: Get available shipping options for the current order
+    strict: true
+    endpoint: /api/checkout/shipping
+    method: POST
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        destination:
+          type: object
+          properties:
+            country:
+              type: string
+            postal_code:
+              type: string
+          description: The shipping destination
+      additional_properties: false
+      required:
+        - user_id
+        - destination
+    response:
+      type: object
+      properties:
+        shipping_options:
+          type: array
+          items:
+            type: object
+            properties:
+              option_id:
+                type: string
+              carrier:
+                type: string
+              service:
+                type: string
+              estimated_delivery:
+                type: string
+                format: date
+              cost:
+                type: number
+        message:
+          type: string
+    sub_tools:
+      - international_shipping_calculator
+      - local_pickup_locator
+      - delivery_date_estimator
+      - shipping_insurance_offerer

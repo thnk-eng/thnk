@@ -1,0 +1,36 @@
+mutation inventorySetOnHandQuantities($input: InventorySetOnHandQuantitiesInput!) {
+    inventorySetOnHandQuantities(input: $input) {
+        userErrors {
+            field
+            message
+        }
+        inventoryAdjustmentGroup {
+            createdAt
+            reason
+            referenceDocumentUri
+            changes {
+                name
+                delta
+            }
+        }
+    }
+}
+
+# {
+#  "input": {
+#    "reason": "correction",
+#    "referenceDocumentUri": "logistics://some.warehouse/take/2023-01-23T13:14:15Z",
+#    "setQuantities": [
+#      {
+#        "inventoryItemId": "gid://shopify/InventoryItem/30322695",
+#        "locationId": "gid://shopify/Location/124656943",
+#        "quantity": 42
+#      },
+#      {
+#        "inventoryItemId": "gid://shopify/InventoryItem/113711323",
+#        "locationId": "gid://shopify/Location/124656943",
+#        "quantity": 13
+#      }
+#    ]
+#  }
+#}

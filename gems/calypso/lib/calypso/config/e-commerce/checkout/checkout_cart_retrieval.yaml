@@ -1,0 +1,51 @@
+tool:
+  - name: checkout_cart_retrieval
+    description: Retrieve the current state of the shopping cart during checkout
+    strict: true
+    endpoint: /api/checkout/cart
+    method: GET
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+      additional_properties: false
+      required:
+        - user_id
+    response:
+      type: object
+      properties:
+        cart_items:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              quantity:
+                type: integer
+              price:
+                type: number
+              subtotal:
+                type: number
+        total_items:
+          type: integer
+        total_amount:
+          type: number
+        applied_discounts:
+          type: array
+          items:
+            type: object
+            properties:
+              discount_id:
+                type: string
+              amount:
+                type: number
+        message:
+          type: string
+    sub_tools:
+      - cart_merger
+      - discount_applier
+      - tax_calculator
+      - abandoned_cart_notifier

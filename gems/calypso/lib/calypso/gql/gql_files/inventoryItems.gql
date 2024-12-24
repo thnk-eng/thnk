@@ -1,0 +1,23 @@
+query inventoryItems {
+    inventoryItems(first: 1, query: "sku:'WSGBOA847'") {
+        edges {
+            node {
+                id
+                tracked
+                sku
+            }
+        }
+    }
+}
+
+query inventoryItems {
+    inventoryItems(first: 2, query: "(created_at:>2023-10-10) OR (sku:'element-151')") {
+        edges {
+            node {
+                id
+                tracked
+                sku
+            }
+        }
+    }
+}

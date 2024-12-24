@@ -1,0 +1,43 @@
+tool:
+  name: inventory_check
+  description: Check the inventory status of products
+  strict: true
+  endpoint: /api/products/inventory
+  method: POST
+  parameters:
+    type: object
+    properties:
+      product_ids:
+        type: array
+        items:
+          type: string
+        description: List of product IDs to check inventory for
+      location:
+        type: string
+        description: Specific warehouse or store location to check (optional)
+    additional_properties: false
+    required:
+      - product_ids
+  response:
+    type: object
+    properties:
+      inventory_status:
+        type: array
+        items:
+          type: object
+          properties:
+            product_id:
+              type: string
+            quantity_available:
+              type: integer
+            status:
+              type: string
+              enum: [ in_stock, low_stock, out_of_stock ]
+            estimated_restock_date:
+              type: string
+              format: date
+  sub_tools:
+    - real_time_inventory_tracker
+    - low_stock_alerter
+    - inventory_forecaster
+

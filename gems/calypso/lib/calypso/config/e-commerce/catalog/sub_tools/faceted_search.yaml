@@ -1,0 +1,68 @@
+tool:
+  name: faceted_search
+  description: Perform a faceted search on the product catalog
+  strict: true
+  endpoint: /api/products/faceted-search
+  method: POST
+  parameters:
+    type: object
+    properties:
+      base_query:
+        type: string
+        description: The base search query string
+      facets:
+        type: object
+        properties:
+          category:
+            type: array
+            items:
+              type: string
+          brand:
+            type: array
+            items:
+              type: string
+          price_range:
+            type: object
+            properties:
+              min:
+                type: integer
+              max:
+                type: integer
+          color:
+            type: array
+            items:
+              type: string
+        description: Facets to filter the search results
+    additional_properties: false
+    required:
+      - base_query
+  response:
+    type: object
+    properties:
+      results:
+        type: array
+        items:
+          type: object
+          properties:
+            product_id:
+              type: string
+            name:
+              type: string
+      facet_counts:
+        type: object
+        properties:
+          category:
+            type: object
+          brand:
+            type: object
+          price_range:
+            type: object
+          color:
+            type: object
+      total_results:
+        type: integer
+  sub_tools:
+    - dynamic_facet_generator
+    - facet_relevance_sorter
+    - multi_select_facet_handler
+

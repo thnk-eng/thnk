@@ -1,0 +1,88 @@
+service:
+  name: OfferService
+  description: >
+    Manages promotional offers, including offer redemption and validation.
+  endpoints:
+    - name: redeem_offer
+      path: /api/offers/redeem
+      method: POST
+      parameters:
+        - name: user_id
+          in: body
+          required: true
+          type: integer
+        - name: offer_code
+          in: body
+          required: true
+          type: string
+      responses:
+        200:
+          description: Offer redeemed successfully.
+          schema:
+            $ref: '#/definitions/OfferRedemption'
+        400:
+          description: Invalid offer code.
+        404:
+          description: Offer not found.
+    - name: get_offer
+      path: /api/offers/{offer_code}
+      method: GET
+      parameters:
+        - name: offer_code
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Details of the offer.
+          schema:
+            $ref: '#/definitions/Offer'
+        404:
+          description: Offer not found.
+  models:
+    Offer:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        discount_type:
+          type: string
+          enum: [percentage, fixed_amount]
+        discount_value:
+          type: number
+          format: float
+        expiration_date:
+          type: string
+          format: date-time
+      required:
+        - code
+        - discount_type
+        - discount_value
+    OfferRedemption:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        offer:
+          $ref: '#/definitions/Offer'
+        redeemed_at:
+          type: string
+          format: date-time
+      required:
+        - user_id
+        - offer
+        - redeemed_at
+  authentication:
+    type: bearer
+    token: YOUR_API_TOKEN_HERE  # Replace with actual authentication method
+  error_handling:
+    - code: 400
+      message: Invalid offer code.
+    - code: 404
+      message: Offer not found.
+    - code: 401
+      message: Unauthorized access.
+    - code: 500
+      message: Internal Server Error.

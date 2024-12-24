@@ -1,0 +1,60 @@
+mutation CollectionCreate($input: CollectionInput!) {
+    collectionCreate(input: $input) {
+        userErrors {
+            field
+            message
+        }
+        collection {
+            id
+            title
+            descriptionHtml
+            handle
+            sortOrder
+            ruleSet {
+                appliedDisjunctively
+                rules {
+                    column
+                    relation
+                    condition
+                    conditionObject {
+                        ... on CollectionRuleMetafieldCondition {
+                            metafieldDefinition {
+                                id
+                                name
+                                type {
+                                    name
+                                }
+                                ownerType
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+# {
+#  "input": {
+#    "title": "Our entire leather collection",
+#    "descriptionHtml": "Check out our leather products.",
+#    "ruleSet": {
+#      "appliedDisjunctively": false,
+#      "rules": [
+#        {
+#          "column": "PRODUCT_METAFIELD_DEFINITION",
+#          "relation": "EQUALS",
+#          "condition": "leather",
+#          "conditionObjectId": "gid://shopify/MetafieldDefinition/1071456152"
+#        },
+#        {
+#          "column": "VARIANT_METAFIELD_DEFINITION",
+#          "relation": "EQUALS",
+#          "condition": "true",
+#          "conditionObjectId": "gid://shopify/MetafieldDefinition/1071456153"
+#        }
+#      ]
+#    }
+#  }
+#}

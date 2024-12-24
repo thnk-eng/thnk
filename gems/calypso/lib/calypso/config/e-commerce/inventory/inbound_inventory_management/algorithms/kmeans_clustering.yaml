@@ -1,0 +1,68 @@
+algorithm:
+  name: KMeansClustering
+  description: >
+    Implements the K-Means Clustering algorithm to segment users or products into distinct clusters based on their features.
+    Useful for customer segmentation, targeted marketing, and inventory categorization.
+  type: clustering
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          A 2D array where each sub-array represents the feature vector of a user or product.
+      num_clusters:
+        type: integer
+        description: >
+          The number of clusters to form.
+        default: 5
+      max_iterations:
+        type: integer
+        description: >
+          The maximum number of iterations the algorithm will run.
+        default: 300
+      tolerance:
+        type: number
+        description: >
+          The convergence tolerance. If the change in cluster centers is below this threshold, the algorithm stops.
+        default: 0.0001
+    additional_properties: false
+    required:
+      - data
+  response:
+    type: object
+    properties:
+      cluster_centers:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          The coordinates of the cluster centers.
+      labels:
+        type: array
+        items:
+          type: integer
+        description: >
+          The cluster label assigned to each data point.
+      inertia:
+        type: number
+        description: >
+          Sum of squared distances of samples to their closest cluster center.
+  dependencies:
+    libraries:
+      - name: scikit-learn
+        version: ">=0.23.0"
+      - name: numpy
+        version: ">=1.18.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid input data. Ensure data is a non-empty 2D array of numerical values.
+    - code: 500
+      message: Internal Server Error - Error occurred during K-Means clustering.

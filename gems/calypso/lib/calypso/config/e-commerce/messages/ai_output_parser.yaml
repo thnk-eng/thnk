@@ -1,0 +1,32 @@
+name: ai_output_parser
+description: >
+  Parses AI-generated JSON output, formats markdown content (especially tables),
+  and returns the enhanced JSON with formatted content.
+strict: true
+endpoint: /api/tools/messages/ai-output-parser
+method: POST
+parameters:
+  type: object
+  properties:
+    content:
+      type: string
+      description: The markdown content to format (extracted from JSON's 'content' field).
+    template_type:
+      type: string
+      description: The type of template to use for formatting tables.
+      enum: [erb, jsx, html]
+      default: erb
+  additional_properties: false
+  required:
+    - content
+    - template_type
+response:
+  type: object
+  properties:
+    formatted_content:
+      type: string
+      description: The formatted markdown content.
+  additional_properties: false
+sub_tools:
+  - name: table_formatter
+    config_file: /e-commerce/catalog/products/messages/table_formatter.yaml

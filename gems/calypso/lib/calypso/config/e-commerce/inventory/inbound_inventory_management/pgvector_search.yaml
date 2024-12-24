@@ -1,0 +1,166 @@
+algorithm:
+  name: PGVector
+  description: >
+    Integrates pgvector, a PostgreSQL extension for efficient vector similarity searches, enabling high-performance
+    vector-based queries directly within the PostgreSQL database. Useful for semantic search, recommendation systems,
+    and similarity matching in high-dimensional spaces.
+  type: vector_search
+  version: 1.1
+  operations:
+    - action: install_extension
+      description: Install and enable the pgvector extension in the PostgreSQL database.
+      sql_commands:
+        - CREATE EXTENSION IF NOT EXISTS vector;
+      dependencies:
+        - extension: vector
+          version: ">=0.7.0"
+    - action: create_table
+      description: Create tables with vector columns of specified dimensions and types.
+      parameters:
+        table_name:
+          type: string
+          description: Name of the table to create.
+        columns:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Column name.
+              data_type:
+                type: string
+                enum: [vector, halfvec, sparsevec, bit]
+                description: Type of vector column.
+              dimension:
+                type: integer
+                description: Dimension of the vector.
+          required:
+            - name
+            - data_type
+            - dimension
+      sql_template: |
+        CREATE TABLE {{ table_name }} (
+          id bigserial PRIMARY KEY,
+          {% for column in columns %}
+          {{ column.name }} {{ column.data_type }}({{ column.dimension }}),
+          {% endfor %}
+        );
+    - action: insert_vectors
+      description: Insert vector data into a specified table.
+      parameters:
+        table_name:
+          type: string
+          description: Name of the table to insert data into.
+        columns:
+          type: array
+          items:
+            type: string
+          description: List of column names corresponding to the vectors.
+        values:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+          description: List of vector values to insert.
+      sql_template: |
+        INSERT INTO {{ table_name }} ({{ columns | join(', ') }})
+        VALUES
+        {% for value_set in values %}
+        ({{ value_set | join(', ') }}),
+        {% endfor %}
+        ;
+    - action: create_index
+      description: Create an index on a vector column for faster similarity search.
+      parameters:
+        table_name:
+          type: string
+          description: Name of the table.
+        column_name:
+          type: string
+          description: Name of the vector column.
+        index_type:
+          type: string
+          enum: [ivfflat, hnsw, flat]
+          description: Type of index to create.
+        distance_operator:
+          type: string
+          enum: [vector_l2_ops, vector_ip_ops, vector_cosine_ops]
+          description: Distance operator to use.
+        options:
+          type: object
+          properties:
+            lists:
+              type: integer
+              description: Number of lists for ivfflat index.
+            m:
+              type: integer
+              description: Number of neighbors for hnsw index.
+      sql_template: |
+        CREATE INDEX ON {{ table_name }} USING {{ index_type }} (
+          {{ column_name }} {{ distance_operator }}
+        )
+        WITH (
+          {% if options.lists %} lists = {{ options.lists }} {% endif %}
+          {% if options.m %} m = {{ options.m }} {% endif %}
+        );
+    - action: perform_search
+      description: Perform a vector similarity search on a table.
+      parameters:
+        table_name:
+          type: string
+          description: Name of the table.
+        column_name:
+          type: string
+          description: Name of the vector column.
+        query_vector:
+          type: string
+          description: The query vector.
+        top_k:
+          type: integer
+          description: Number of top results to return.
+          default: 5
+        distance_operator:
+          type: string
+          enum: [<->, <=>, <~>]
+          description: Distance operator to use for ordering.
+        additional_conditions:
+          type: string
+          description: Additional SQL conditions for filtering.
+      sql_template: |
+        SELECT *
+        FROM {{ table_name }}
+        {% if additional_conditions %}
+        WHERE {{ additional_conditions }}
+        {% endif %}
+        ORDER BY {{ column_name }} {{ distance_operator }} {{ query_vector }}
+        LIMIT {{ top_k }};
+    - action: create_function
+      description: Create a PostgreSQL function for vector operations.
+      parameters:
+        function_name:
+          type: string
+          description: Name of the function to create.
+        function_body:
+          type: string
+          description: PL/pgSQL function body.
+      sql_template: |
+        CREATE OR REPLACE FUNCTION {{ function_name }}()
+        RETURNS TABLE(...)
+        LANGUAGE plpgsql
+        AS $$
+        {{ function_body }}
+        $$;
+  dependencies:
+    extensions:
+      - name: vector
+        version: ">=0.7.0"
+    database:
+      - name: PostgreSQL
+        version: ">=12"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid parameters or missing required fields.
+    - code: 500
+      message: Internal Server Error - Error occurred during vector operation.

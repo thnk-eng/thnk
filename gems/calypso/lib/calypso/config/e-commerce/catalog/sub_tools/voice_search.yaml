@@ -1,0 +1,43 @@
+tool:
+  name: voice_search
+  description: Perform a search based on voice input
+  strict: true
+  endpoint: /api/products/voice-search
+  method: POST
+  parameters:
+    type: object
+    properties:
+      audio:
+        type: string
+        format: binary
+        description: The audio file containing the voice search query
+      language:
+        type: string
+        description: The language of the voice input
+    additional_properties: false
+    required:
+      - audio
+  response:
+    type: object
+    properties:
+      transcribed_query:
+        type: string
+      results:
+        type: array
+        items:
+          type: object
+          properties:
+            product_id:
+              type: string
+            name:
+              type: string
+            relevance_score:
+              type: number
+              format: float
+      total_results:
+        type: integer
+  sub_tools:
+    - speech_to_text_converter
+    - natural_language_processor
+    - intent_classifier
+

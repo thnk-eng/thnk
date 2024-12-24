@@ -1,0 +1,36 @@
+query {
+    productByHandle(handle: "there is no product with a handle like this") {
+        id
+        title
+        productType
+        description
+        vendor
+    }
+}
+
+# query {
+#  productByHandle(handle: "ipod-nano") {
+#    id
+#    handle
+#    title
+#    productType
+#    description
+#    vendor
+#    priceRangeV2 {
+#      minVariantPrice {
+#        amount
+#        currencyCode
+#      }
+#      maxVariantPrice {
+#        amount
+#        currencyCode
+#      }
+#    }
+#  }
+#}
+
+# query getProductIdFromHandle($handle: String!) {
+#  productByHandle(handle: $handle) {
+#    id
+#  }
+#}

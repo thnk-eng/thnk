@@ -1,0 +1,135 @@
+workflow:
+  name: RAG_Pipeline_Workflow
+  description: >
+    Orchestrates the RAG pipeline by handling image ingestion, performing selected analyses,
+    generating vector embeddings, conducting image-based searches, and storing results.
+  steps:
+    - step: upload_image
+      description: Upload and validate the image from the UI.
+      action: receive_image
+      input:
+        source: frontend
+        field: image
+    - step: select_analysis_tasks
+      description: Select which analysis tasks to perform based on user input.
+      action: parse_tasks
+      input:
+        source: frontend
+        field: analysis_tasks
+    - step: segmentation
+      condition: "tasks.includes('segmentation')"
+      description: Perform image segmentation using SAM_2.
+      tool: SAM_2
+      config: /config/inventory_management/integrations/detector/image/SAM_2.yaml
+      input:
+        image: "{{ upload_image.image }}"
+    - step: object_detection
+      condition: "tasks.includes('object_detection')"
+      description: Perform object detection using YOLO_V8 and Detectron2.
+      tools:
+        - YOLO_V8
+        - Detectron2
+      configs:
+        - /config/inventory_management/integrations/detector/image/YOLO_V8.yaml
+        - /config/inventory_management/integrations/detector/image/Detectron2.yaml
+      input:
+        image: "{{ upload_image.image }}"
+    - step: feature_matching
+      condition: "tasks.includes('feature_matching')"
+      description: Perform feature matching using LightGlue.
+      tool: lightglue
+      config: /config/inventory_management/integrations/detector/image/lightglue.yaml
+      input:
+        image1: "{{ upload_image.image }}"
+        image2: "{{ reference_image }}"  # Define how reference_image is obtained
+    - step: generate_embedding
+      description: Generate vector embeddings using the selected embedding model.
+      tool: vector_embedding
+      config: /config/tools/vector_embedding.yaml
+      input:
+        image: "{{ upload_image.image }}"
+        embedding_model: "{{ frontend.embedding_model }}"
+        embedding_dimensionality: "{{ frontend.embedding_dimensionality }}"
+    - step: image_based_search
+      description: Perform image-based search using the uploaded image.
+      tool: image_based_search
+      config: /config/image_based_search/image_based_search.yaml
+      input:
+        image: "{{ upload_image.image }}"
+        similarity_threshold: "{{ frontend.similarity_threshold }}"
+        max_results: "{{ frontend.max_results }}"
+    - step: store_results
+      description: Store the analysis, embedding, and search results in the database or vector store.
+      action: save_to_storage
+      input:
+        analysis: "{{ all_analysis_results }}"
+        embedding: "{{ generate_embedding.vector }}"
+        search_results: "{{ image_based_search.results }}"
+    - step: send_confirmation
+      description: Notify the user of successful processing and provide results.
+      action: notify_user
+      input:
+        success: true
+        product_id: "{{ stored_product.id }}"
+        message: "Image processed, product created, and search completed successfully."
+  triggers:
+    - event: form_submitted
+      step: upload_image
+  concurrency: parallel
+  error_handling:
+    on_error: notify_user
+    actions:
+      - send_error_log
+      - rollback_changes
+
+---
+
+script: |
+  # rag_workflow.rb (part of your gem)
+  require 'json'
+
+  class RagWorkflow
+    attr_accessor :steps, :config_file, :input
+
+    def initialize(config_file:, input:)
+      @config_file = config_file
+      @input = input
+      @steps = []
+    end
+
+    # Define a method for each step in the workflow using metaprogramming to avoid repetition.
+    %i[upload_image select_analysis_tasks segmentation object_detection feature_matching generate_embedding image_based_search store_results send_confirmation].each do |step|
+      define_method "#{step}_#{input[:field][:name]}" do
+        step = @steps.find { |s| s[:condition] == true } || {} # Find the first matching condition, if any
+
+        case step[:tool]
+          when 'lightglue' then LightGlue.new(@config_file[step[:config_file]], input).call(input)
+          else raise "Unsupported tool for #{step[:tool]}."
+        end
+      rescue => e
+        notify_user("Error in step '#{step[:name]}'", { error: e.message })
+        break # Optionally, you might want to handle errors differently or continue execution if appropriate.
+      else
+        puts "Completed #{step[:tool]} successfully."
+      end
+    end
+
+    def notify_user(title, data)
+      case title
+        when 'Error' then send("send_error_log", { error: data }) && break # Implement this method to handle errors.
+        else "Notify user with message '#{data[:message]}' and product ID #{input['product']['id']}."
+      end
+    rescue => e
+      notify_user('Unexpected Error', { error: e.message })
+    end
+
+    def run
+      @steps.each do |step|
+        send(step[:name]) if step[:condition] == true # Execute the method only for steps with a matching condition (if any).
+      end
+    rescue => e
+      notify_user('Workflow Error', { error: "An unexpected issue occurred during workflow execution." })
+    else
+      puts 'All tasks completed successfully.'
+    end
+  end

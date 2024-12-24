@@ -1,0 +1,67 @@
+algorithm:
+  name: PrincipalComponentAnalysis
+  description: >
+    Implements Principal Component Analysis (PCA) for dimensionality reduction, transforming high-dimensional data into lower dimensions
+    while preserving as much variance as possible. Useful for data visualization, noise reduction, and improving algorithm performance.
+  type: dimensionality_reduction
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          A 2D array where each sub-array represents a data point with multiple features.
+      n_components:
+        type: integer
+        description: >
+          The number of principal components to compute.
+        default: 2
+      whiten:
+        type: boolean
+        description: >
+          Whether to whiten the components, scaling them to have unit variance.
+        default: false
+    additional_properties: false
+    required:
+      - data
+  response:
+    type: object
+    properties:
+      principal_components:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          The transformed data represented in the new principal component space.
+      explained_variance_ratio:
+        type: array
+        items:
+          type: number
+        description: >
+          The percentage of variance explained by each of the selected principal components.
+      components:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          The principal axes in feature space, representing the directions of maximum variance.
+  dependencies:
+    libraries:
+      - name: scikit-learn
+        version: ">=0.23.0"
+      - name: numpy
+        version: ">=1.18.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid input data. Ensure data is a non-empty 2D array of numerical values.
+    - code: 500
+      message: Internal Server Error - Error occurred during PCA.

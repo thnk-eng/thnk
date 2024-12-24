@@ -1,0 +1,11 @@
+mutation inventoryDeactivate($inventoryLevelId: ID!) {
+    inventoryDeactivate(inventoryLevelId: $inventoryLevelId) {
+        userErrors {
+            message
+        }
+    }
+}
+
+# {
+#  "inventoryLevelId": "gid://shopify/InventoryLevel/820859520?inventory_item_id=826867926"
+#}

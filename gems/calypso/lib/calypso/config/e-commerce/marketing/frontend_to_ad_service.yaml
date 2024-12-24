@@ -1,0 +1,55 @@
+tool:
+  - name: frontend_to_ad_service
+    description: Fetch personalized advertisements for display on the frontend
+    strict: true
+    endpoint: /api/ads
+    method: GET
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        page_context:
+          type: string
+          description: The current page or section where ads will be displayed
+        ad_count:
+          type: integer
+          description: Number of ads to retrieve
+        ad_type:
+          type: string
+          enum: [banner, sidebar, popup]
+          description: The type of ad to retrieve
+      additional_properties: false
+      required:
+        - user_id
+        - page_context
+    response:
+      type: object
+      properties:
+        ads:
+          type: array
+          items:
+            type: object
+            properties:
+              ad_id:
+                type: string
+              content:
+                type: string
+              target_url:
+                type: string
+              dimensions:
+                type: object
+                properties:
+                  width:
+                    type: integer
+                  height:
+                    type: integer
+        impression_id:
+          type: string
+          description: Unique identifier for this set of ad impressions
+    sub_tools:
+      - personalized_ad_selection
+      - ad_placement_optimization
+      - ad_performance_tracking
+      - user_interest_analysis

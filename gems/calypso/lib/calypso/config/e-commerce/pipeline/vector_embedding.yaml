@@ -1,0 +1,55 @@
+tool:
+  name: TextVectorEmbedding
+  description: >
+    Tool for generating vector representations of texts using the LLM's embedding function.
+  type: vector_embedding
+  version: "1.0"
+  parameters:
+    type: object
+    properties:
+      texts:
+        type: array
+        items:
+          type: string
+        description: The texts to generate embeddings for.
+      llm:
+        type: object
+        description: The LLM client instance.
+    required:
+      - texts
+      - llm
+    additionalProperties: false
+  response:
+    type: object
+    properties:
+      embeddings:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+          description: The vector embeddings for the texts.
+    required:
+      - embeddings
+    additionalProperties: false
+  methods:
+    - name: generate_embeddings
+      description: Generates embeddings for the provided texts.
+      parameters:
+        - name: texts
+          type: array
+          items:
+            type: string
+          description: The texts to generate embeddings for.
+      returns:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+          description: The vector embeddings.
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid texts provided.
+    - code: 500
+      message: Internal Server Error - Error during embedding generation.

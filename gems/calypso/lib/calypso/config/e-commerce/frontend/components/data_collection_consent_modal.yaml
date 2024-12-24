@@ -1,0 +1,78 @@
+component:
+  name: DataCollectionConsentModal
+  description: >
+    A modal dialog that prompts users to consent to data collection for personalized experiences.
+  type: modal
+  properties:
+    - name: is_open
+      type: boolean
+      default: true
+  layout:
+    type: vertical
+    elements:
+      - type: text
+        content: "We Value Your Privacy"
+        style: heading
+      - type: text
+        content: >
+          To enhance your shopping experience, we collect data about your interactions with our site.
+          This helps us provide personalized recommendations and support. Your data is securely stored
+          and processed in compliance with GDPR and CCPA regulations.
+      - type: checkbox
+        name: accept_terms
+        label: "I agree to the collection and processing of my data."
+        required: true
+      - type: button_group
+        buttons:
+          - type: button
+            text: "Accept"
+            style: primary
+            action: "accept_consent"
+            disabled_condition: "!accept_terms"
+          - type: button
+            text: "Decline"
+            style: secondary
+            action: "decline_consent"
+  actions:
+    - name: accept_consent
+      description: >
+        Action triggered when the user accepts the data collection terms.
+      type: event
+      events:
+        - type: close_modal
+          target: "DataCollectionConsentModal"
+        - type: call_backend
+          endpoint: "/api/user_consent"
+          method: POST
+          parameters:
+            user_id: "{{ user_id }}"
+            consent_given: true
+    - name: decline_consent
+      description: >
+        Action triggered when the user declines the data collection terms.
+      type: event
+      events:
+        - type: close_modal
+          target: "DataCollectionConsentModal"
+        - type: call_backend
+          endpoint: "/api/user_consent"
+          method: POST
+          parameters:
+            user_id: "{{ user_id }}"
+            consent_given: false
+  dependencies:
+    backend_endpoints:
+      - path: "/api/user_consent"
+        method: POST
+        description: Endpoint to record user consent status.
+  validations:
+    - field: accept_terms
+      validations:
+        - required: true
+          error_message: "You must agree to the terms to proceed."
+  error_handling:
+    type: inline
+    components:
+      - type: text
+        content: "{{ error_message }}"
+        style: error

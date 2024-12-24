@@ -1,0 +1,28 @@
+query inventoryItemToProductVariant {
+    inventoryItem(id: "gid://shopify/InventoryItem/30322695") {
+        id
+        inventoryLevels(first: 1) {
+            edges {
+                node {
+                    id
+                    location {
+                        id
+                        name
+                    }
+                    quantities(names: ["available", "committed", "incoming", "on_hand", "reserved"]) {
+                        name
+                        quantity
+                    }
+                }
+            }
+        }
+        variant {
+            id
+            title
+            product {
+                id
+                title
+            }
+        }
+    }
+}

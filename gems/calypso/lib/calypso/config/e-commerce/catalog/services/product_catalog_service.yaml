@@ -1,0 +1,63 @@
+service:
+  name: ProductCatalogService
+  description: >
+    Manages product data, including retrieval, search, and updates for products within the catalog.
+  endpoints:
+    - name: get_product
+      path: /api/products/{product_id}
+      method: GET
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          type: integer
+          description: ID of the product to retrieve.
+      responses:
+        200:
+          description: Successful retrieval of product data.
+          schema:
+            ref: '#/definitions/Product'
+        404:
+          description: Product not found.
+    - name: search_products
+      path: /api/products/search
+      method: GET
+      parameters:
+        - name: query
+          in: query
+          required: true
+          type: string
+          description: Search query string.
+      responses:
+        200:
+          description: List of products matching the search query.
+          schema:
+            type: array
+            items:
+              ref: '#/definitions/Product'
+  models:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        image_url:
+          type: string
+      required:
+        - id
+        - name
+        - price
+  authentication:
+    type: none  # Adjust if authentication is required
+  error_handling:
+    - code: 404
+      message: Product not found.
+    - code: 500
+      message: Internal Server Error.

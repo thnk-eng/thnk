@@ -1,0 +1,74 @@
+tool:
+  name: ContextAwarenessTool
+  description: >
+    Gathers real-time user context to enhance personalized interactions, recommendations, and support through the AI model.
+  type: context_awareness
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      user_id:
+        type: string
+        description: Unique identifier of the user.
+      session_id:
+        type: string
+        description: Unique identifier of the current user session.
+      page_context:
+        type: object
+        description: >
+          Information about the current page, including URL, page type, and metadata.
+        properties:
+          url:
+            type: string
+            format: uri
+          page_type:
+            type: string
+            enum: [home, product, category, cart, checkout, account]
+          metadata:
+            type: object
+            additional_properties: true
+      user_interactions:
+        type: array
+        description: List of recent user interactions.
+        items:
+          type: object
+          properties:
+            interaction_type:
+              type: string
+              enum: [click, view, add_to_cart, purchase, search]
+            target:
+              type: string
+              description: Identifier of the target item or element.
+            timestamp:
+              type: string
+              format: date-time
+    required:
+      - user_id
+      - session_id
+      - page_context
+  response:
+    type: object
+    properties:
+      personalized_data:
+        type: object
+        description: Personalized content or recommendations for the user.
+      ai_insights:
+        type: object
+        description: AI model's insights based on the gathered context.
+  dependencies:
+    services:
+      - user_profile_service
+      - recommendation_engine
+      - analytics_service
+  security:
+    data_privacy:
+      compliance: [GDPR, CCPA]
+      data_encryption: true
+      user_consent_required: true
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid parameters or missing required fields.
+    - code: 401
+      message: Unauthorized - User not authenticated.
+    - code: 500
+      message: Internal Server Error - Error occurred during context processing.

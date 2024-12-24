@@ -1,0 +1,42 @@
+algorithm:
+  name: CosineSimilarity
+  description: >
+    Calculates the cosine similarity between two vectors. This metric measures the cosine of the angle between them,
+    providing a value between -1 and 1 where 1 indicates identical orientation, 0 indicates orthogonality, and -1 indicates opposite orientation.
+  type: similarity_measure
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      vector_a:
+        type: array
+        items:
+          type: number
+        description: >
+          The first vector for similarity comparison.
+      vector_b:
+        type: array
+        items:
+          type: number
+        description: >
+          The second vector for similarity comparison.
+    additional_properties: false
+    required:
+      - vector_a
+      - vector_b
+  response:
+    type: object
+    properties:
+      cosine_similarity:
+        type: number
+        description: >
+          The cosine similarity score between vector_a and vector_b, ranging from -1 to 1.
+  dependencies:
+    libraries:
+      - name: numpy
+        version: ">=1.18.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid input vectors. Ensure both vectors are non-empty and of the same length.
+    - code: 500
+      message: Internal Server Error - Error occurred while calculating cosine similarity.

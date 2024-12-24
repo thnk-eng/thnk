@@ -1,0 +1,39 @@
+name: content_generator
+description: >
+  Generate SEO-optimized titles and descriptions using extracted keywords and image analysis.
+endpoint: /api/tools/content-generator
+method: POST
+parameters:
+  type: object
+  properties:
+    product_name:
+      type: string
+      description: The name of the product
+    product_category:
+      type: string
+      description: The category of the product
+    keywords:
+      type: array
+      items:
+        type: string
+      description: SEO keywords extracted for the product
+    image_analysis_results:
+      type: object
+      description: Results from image analysis tools (e.g., Detectron2, YOLO_V8)
+  additional_properties: false
+  required:
+    - product_name
+    - product_category
+    - keywords
+    - image_analysis_results
+response:
+  type: object
+  properties:
+    seo_title:
+      type: string
+      description: Generated SEO-optimized title
+    seo_description:
+      type: string
+      description: Generated SEO-optimized description
+  additional_properties: false
+sub_tools: []

@@ -1,0 +1,35 @@
+mutation stagedUploadsCreate($input: [StagedUploadInput!]!) {
+    stagedUploadsCreate(input: $input) {
+        stagedTargets {
+            url
+            resourceUrl
+            parameters {
+                name
+                value
+            }
+        }
+    }
+}
+
+# {
+#  "input": [
+#    {
+#      "filename": "image1.png",
+#      "mimeType": "image/png",
+#      "httpMethod": "POST",
+#      "resource": "IMAGE"
+#    },
+#    {
+#      "filename": "video.mp4",
+#      "mimeType": "video/mp4",
+#      "fileSize": "1234",
+#      "resource": "VIDEO"
+#    },
+#    {
+#      "filename": "3d_model.glb",
+#      "mimeType": "model/gltf-binary",
+#      "resource": "MODEL_3D",
+#      "fileSize": "456"
+#    }
+#  ]
+#}

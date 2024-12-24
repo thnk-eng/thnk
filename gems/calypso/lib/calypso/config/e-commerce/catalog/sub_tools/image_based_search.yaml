@@ -1,0 +1,55 @@
+name: image_based_search
+description: Perform a search based on an uploaded image
+strict: true
+endpoint: /api/products/image-search
+method: POST
+parameters:
+  type: object
+  properties:
+    image:
+      type: string
+      format: binary
+      description: The image file to search with
+    similarity_threshold:
+      type: number
+      format: float
+      description: Minimum similarity score to include in results
+      default: 0.7
+      minimum: 0
+      maximum: 1
+    max_results:
+      type: integer
+      description: Maximum number of results to return
+      default: 10
+      minimum: 1
+      maximum: 100
+  additional_properties: false
+  required:
+    - image
+response:
+  type: object
+  properties:
+    results:
+      type: array
+      items:
+        type: object
+        properties:
+          product_id:
+            type: string
+          name:
+            type: string
+          similarity_score:
+            type: number
+            format: float
+          image_url:
+            type: string
+    total_results:
+      type: integer
+  additional_properties: false
+sub_tools:
+  - name: image_feature_extractor
+    config_file: /config/image_based_search/image_feature_extractor.yaml
+  - name: color_palette_analyzer
+    config_file: /config/image_based_search/color_palette_analyzer.yaml
+  - name: object_detector
+    config_file: /config/image_based_search/object_detector.yaml

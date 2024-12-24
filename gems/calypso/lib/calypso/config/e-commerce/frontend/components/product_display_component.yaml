@@ -1,0 +1,77 @@
+component:
+  name: ProductDisplayComponent
+  description: >
+    UI component that displays detailed information about a product.
+  type: widget
+  properties:
+    - name: product
+      type: object
+      required: true
+      schema:
+        ref: ''
+  layout:
+    type: vertical
+    elements:
+      - type: image
+        source: "{{ product.image_url }}"
+        alt_text: "{{ product.name }}"
+      - type: text
+        content: "{{ product.name }}"
+        style: heading
+      - type: text
+        content: "{{ product.description }}"
+      - type: text
+        content: "Price: ${{ product.price }}"
+        style: price
+      - type: button
+        text: "Add to Cart"
+        action: "add_to_cart"
+        parameters:
+          product_id: "{{ product.id }}"
+      - type: button
+        text: "Back to Products"
+        action: "navigate"
+        parameters:
+          path: "/products"
+  example: >+
+    query {
+        product(id: "gid://shopify/Product/9546467606775") {
+            title
+            description
+            onlineStoreUrl
+        		totalInventory
+        		category {
+              name
+              id
+              parentId
+            }
+        }
+    }
+
+
+    {
+      "data": {
+        "product": {
+          "title": "Washable Silk Tulip Dress",
+          "description": "Feel (and look) like spring in the Washable Silk Tulip Dress. Featuring a flattering scoop neck design and tulip side slit detailing, you’ll feel extra flowy and breezy (aka, it’s made to move with every sleep position). Constructed of 100% Mulberry Washable Silk with naturally thermoregulating properties, you’re channeling that “not too hot, not to cold” kinda perfection. Product Materials: Organic",
+          "onlineStoreUrl": "https://thnk.com/products/washable-silk-tulip-dress-1",
+          "totalInventory": 3,
+          "category": {
+            "name": "Nightgowns",
+            "id": "gid://shopify/TaxonomyCategory/aa-1-17-3",
+            "parentId": "gid://shopify/TaxonomyCategory/aa-1-17"
+          }
+        }
+      },
+      "extensions": {
+        "cost": {
+          "requestedQueryCost": 2,
+          "actualQueryCost": 2,
+          "throttleStatus": {
+            "maximumAvailable": 4000,
+            "currentlyAvailable": 3998,
+            "restoreRate": 200
+          }
+        }
+      }
+    }

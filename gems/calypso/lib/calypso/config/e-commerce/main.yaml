@@ -1,0 +1,465 @@
+tools:
+  - name: frontend_to_ad_service
+    description: Fetch personalized advertisements for display on the frontend
+    strict: true
+    endpoint: /api/ads
+    method: GET
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        page_context:
+          type: string
+          description: The current page or section where ads will be displayed
+      additional_properties: false
+      required:
+        - user_id
+    sub_tools:
+      - personalized_ad_selection
+      - ad_placement_optimization
+      - ad_performance_tracking
+      - user_interest_analysis
+
+  - name: frontend_to_recommendation_engine
+    description: Get personalized product recommendations for a user
+    strict: true
+    endpoint: /api/recommendations
+    method: POST
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        browsing_history:
+          type: array
+          items:
+            type: string
+          description: List of product IDs the user has recently viewed
+        limit:
+          type: integer
+          description: Maximum number of recommendations to return
+      additional_properties: false
+      required:
+        - user_id
+    sub_tools:
+      - collaborative_filtering
+      - content_based_filtering
+      - hybrid_recommendation
+      - real_time_personalization
+
+  - name: frontend_to_product_catalog
+    description: Search and retrieve products from the catalog
+    strict: true
+    endpoint: /api/products
+    method: GET
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: The search query string
+        category:
+          type: string
+          description: The category to filter results
+        price_range:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+          description: The price range for filtering results
+        page:
+          type: integer
+          description: The page number for pagination
+        items_per_page:
+          type: integer
+          description: Number of items to return per page
+      additional_properties: false
+      required:
+        - query
+    sub_tools:
+      - full_text_search
+      - faceted_search
+      - image_based_search
+      - voice_search
+      - inventory_check
+
+  - name: frontend_to_shopping_cart
+    description: Manage the user's shopping cart
+    strict: true
+    endpoint: /api/cart
+    method: POST
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        action:
+          type: string
+          enum: [add, remove, update, get]
+          description: The action to perform on the cart
+        product_id:
+          type: string
+          description: The ID of the product to act upon (for add, remove, update)
+        quantity:
+          type: integer
+          description: The quantity of the product (for add or update actions)
+      additional_properties: false
+      required:
+        - user_id
+        - action
+    sub_tools:
+      - cart_item_management
+      - cart_total_calculation
+      - cart_persistence
+      - cross_sell_suggestions
+
+  - name: checkout_payment_processing
+    description: Process payment for the order
+    strict: true
+    endpoint: /api/checkout/payment
+    method: POST
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        order_id:
+          type: string
+          description: The unique identifier of the order
+        payment_method:
+          type: string
+          enum: [credit_card, paypal, bank_transfer]
+          description: The payment method to use
+        amount:
+          type: number
+          description: The total amount to charge
+        currency:
+          type: string
+          description: The currency of the payment
+      additional_properties: false
+      required:
+        - user_id
+        - order_id
+        - payment_method
+        - amount
+        - currency
+    sub_tools:
+      - carrier_option
+      - payment_plan_custom
+      - subscription
+      - save_to_account
+      - fraud_detection
+      - payment_gateway_integration
+      - recurring_billing
+
+  - name: checkout_order_confirmation_email
+    description: Send an order confirmation email to the customer
+    strict: true
+    endpoint: /api/checkout/email
+    method: POST
+    parameters:
+      type: object
+      properties:
+        order_id:
+          type: string
+          description: The unique identifier of the order
+        customer_email:
+          type: string
+          format: email
+          description: The email address of the customer
+        language:
+          type: string
+          description: The preferred language for the email
+        template:
+          type: string
+          enum: [order_confirmation, shipment_tracking]
+          description: The email template to use
+      additional_properties: false
+      required:
+        - order_id
+        - customer_email
+        - language
+        - template
+    sub_tools:
+      - email_template_selection
+      - localization
+      - attachment_generation
+      - email_scheduling
+      - delivery_tracking
+
+  - name: cart_data_caching
+    description: Cache or retrieve cart data for a user
+    strict: true
+    endpoint: /api/cart/cache
+    method: POST
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        action:
+          type: string
+          enum: [cache, retrieve]
+          description: Whether to cache new data or retrieve existing data
+        cart_data:
+          type: object
+          description: The cart data to cache (required only for 'cache' action)
+      additional_properties: false
+      required:
+        - user_id
+        - action
+    sub_tools:
+      - data_compression
+      - cache_expiration_management
+      - cross_device_synchronization
+      - offline_mode_support
+        
+        
+        ---
+
+
+      tools:
+        - name: full_text_search
+          description: Perform a full-text search on the product catalog
+          strict: true
+          endpoint: /api/products/search
+          method: GET
+          parameters:
+            type: object
+            properties:
+              query:
+                type: string
+                description: The search query string
+              fuzzy_match:
+                type: boolean
+                description: Whether to use fuzzy matching for the search
+              fields:
+                type: array
+                items:
+                  type: string
+                description: Specific fields to search (e.g., name, description, tags)
+            additional_properties: false
+            required:
+              - query
+          response:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: string
+                    name:
+                      type: string
+                    relevance_score:
+                      type: number
+              total_results:
+                type: integer
+          sub_tools:
+            - spell_checker
+            - synonym_expander
+            - search_analytics_logger
+
+        - name: faceted_search
+          description: Perform a faceted search on the product catalog
+          strict: true
+          endpoint: /api/products/faceted-search
+          method: POST
+          parameters:
+            type: object
+            properties:
+              base_query:
+                type: string
+                description: The base search query string
+              facets:
+                type: object
+                properties:
+                  category:
+                    type: array
+                    items:
+                      type: string
+                  brand:
+                    type: array
+                    items:
+                      type: string
+                  price_range:
+                    type: object
+                    properties:
+                      min:
+                        type: number
+                      max:
+                        type: number
+                  color:
+                    type: array
+                    items:
+                      type: string
+                description: Facets to filter the search results
+            additional_properties: false
+            required:
+              - base_query
+          response:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: string
+                    name:
+                      type: string
+              facet_counts:
+                type: object
+                properties:
+                  category:
+                    type: object
+                  brand:
+                    type: object
+                  price_range:
+                    type: object
+                  color:
+                    type: object
+              total_results:
+                type: integer
+          sub_tools:
+            - dynamic_facet_generator
+            - facet_relevance_sorter
+            - multi_select_facet_handler
+
+        - name: image_based_search
+          description: Perform a search based on an uploaded image
+          strict: true
+          endpoint: /api/products/image-search
+          method: POST
+          parameters:
+            type: object
+            properties:
+              image:
+                type: string
+                format: binary
+                description: The image file to search with
+              similarity_threshold:
+                type: number
+                description: Minimum similarity score to include in results
+              max_results:
+                type: integer
+                description: Maximum number of results to return
+            additional_properties: false
+            required:
+              - image
+          response:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: string
+                    name:
+                      type: string
+                    similarity_score:
+                      type: number
+                    image_url:
+                      type: string
+              total_results:
+                type: integer
+          sub_tools:
+            - image_feature_extractor
+            - color_palette_analyzer
+            - object_detector
+
+        - name: voice_search
+          description: Perform a search based on voice input
+          strict: true
+          endpoint: /api/products/voice-search
+          method: POST
+          parameters:
+            type: object
+            properties:
+              audio:
+                type: string
+                format: binary
+                description: The audio file containing the voice search query
+              language:
+                type: string
+                description: The language of the voice input
+            additional_properties: false
+            required:
+              - audio
+          response:
+            type: object
+            properties:
+              transcribed_query:
+                type: string
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: string
+                    name:
+                      type: string
+                    relevance_score:
+                      type: number
+              total_results:
+                type: integer
+          sub_tools:
+            - speech_to_text_converter
+            - natural_language_processor
+            - intent_classifier
+
+        - name: inventory_check
+          description: Check the inventory status of products
+          strict: true
+          endpoint: /api/products/inventory
+          method: POST
+          parameters:
+            type: object
+            properties:
+              product_ids:
+                type: array
+                items:
+                  type: string
+                description: List of product IDs to check inventory for
+              location:
+                type: string
+                description: Specific warehouse or store location to check (optional)
+            additional_properties: false
+            required:
+              - product_ids
+          response:
+            type: object
+            properties:
+              inventory_status:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: string
+                    quantity_available:
+                      type: integer
+                    status:
+                      type: string
+                      enum: [ in_stock, low_stock, out_of_stock ]
+                    estimated_restock_date:
+                      type: string
+                      format: date
+          sub_tools:
+            - real_time_inventory_tracker
+            - low_stock_alerter
+            - inventory_forecaster

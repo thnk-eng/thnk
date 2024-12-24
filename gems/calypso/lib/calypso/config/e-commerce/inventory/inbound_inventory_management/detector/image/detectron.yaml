@@ -1,0 +1,43 @@
+name: Detectron2
+description: Detectron2 for object detection and instance segmentation
+endpoint: /api/inventory/detect/detectron2
+method: POST
+parameters:
+  type: object
+  properties:
+    image:
+      type: string
+      format: binary
+      description: The image file to analyze
+    model:
+      type: string
+      enum: [ mask_rcnn, faster_rcnn ]
+      description: The Detectron2 model to use for detection
+  required:
+    - image
+    - model
+  additional_properties: false
+response:
+  type: object
+  properties:
+    detections:
+      type: array
+      items:
+        type: object
+        properties:
+          class:
+            type: string
+            description: The detected object's class name
+          confidence:
+            type: number
+            format: float
+            description: Confidence score of the detection
+          bbox:
+            type: array
+            items:
+              type: integer
+            minItems: 4
+            maxItems: 4
+            description: Bounding box coordinates [x, y, width, height]
+  additional_properties: false
+sub_tools: []

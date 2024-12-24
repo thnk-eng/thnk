@@ -1,0 +1,41 @@
+algorithm:
+  name: KnuthMorrisPratt
+  description: >
+    Implements the Knuth-Morris-Pratt (KMP) algorithm for efficient substring search within a main string.
+    KMP improves the search by eliminating redundant comparisons.
+  type: string_matching
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      text:
+        type: string
+        description: >
+          The main string in which to search for the pattern.
+      pattern:
+        type: string
+        description: >
+          The substring pattern to search for within the main string.
+    additional_properties: false
+    required:
+      - text
+      - pattern
+  response:
+    type: object
+    properties:
+      match_indices:
+        type: array
+        items:
+          type: integer
+        description: >
+          An array of starting indices where the pattern is found within the main text.
+  dependencies:
+    libraries:
+      - name: none
+        description: >
+          The KMP algorithm can be implemented without external libraries.
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid input strings. Ensure both text and pattern are non-empty.
+    - code: 500
+      message: Internal Server Error - Error occurred while performing string matching.

@@ -1,0 +1,76 @@
+
+workflow:
+  name: inbound_processing
+  description: Workflow for processing inbound inventory shipments
+  steps:
+    - step: receive_shipment
+      description: Receive and log the incoming shipment.
+      action: log_shipment
+      input:
+        shipment_id: "{{ shipment_id }}"
+        supplier_id: "{{ supplier_id }}"
+        items: "{{ items }}"
+        warehouse_id: "{{ warehouse_id }}"
+    - step: image_based_detection
+      description: Perform image-based detection using Detectron2, YOLO_V8, SAM_2, and LightGlue.
+      tool: detect_from_image
+      config: /config/inventory_management/integrations/detector/detect_from_image.yaml
+      input:
+        image: "{{ shipment_image }}"
+        tasks:
+          - segmentation
+          - object_detection
+        model_preferences:
+          segmentation_model: SAM_2
+          detection_model: YOLO_V8
+          feature_matching_model: lightglue
+        confidence_threshold: 0.5
+    - step: image_based_search
+      description: Perform image-based search to verify received products.
+      tool: image_based_search
+      config: /config/image_based_search/image_based_search.yaml
+      input:
+        image: "{{ shipment_image }}"
+        similarity_threshold: 0.7
+        max_results: 10
+    - step: quantity_verification
+      description: Validate the counted items against shipment records.
+      action: verify_quantities
+      input:
+        shipment_id: "{{ shipment_id }}"
+        counted_items: "{{ image_based_detection.detections }}"
+    - step: quality_check
+      description: Assess the quality and condition of received items.
+      action: check_quality
+      input:
+        damage_reports: "{{ image_based_detection.segmentation_results }}"
+    - step: inventory_update
+      description: Update inventory levels based on verified quantities.
+      tool: update_inventory
+      config: /config/inventory_management/tools/update_inventory.yaml
+      input:
+        updates:
+          - product_id: "{{ item.product_id }}"
+            quantity_change: "{{ item.quantity }}"
+            warehouse_id: "{{ warehouse_id }}"
+        # Populate updates based on verification
+    - step: storage_assignment
+      description: Assign storage locations for the new inventory.
+      action: assign_storage
+      input:
+        product_id: "{{ inventory_update.updated_products }}"
+        warehouse_id: "{{ warehouse_id }}"
+    - step: finalize_processing
+      description: Complete the workflow and notify relevant parties.
+      action: send_notification
+      input:
+        message: "Inbound shipment processed successfully."
+  triggers:
+    - event: shipment_received
+      step: receive_shipment
+  concurrency: parallel
+  error_handling:
+    on_error: notify_user
+    actions:
+      - send_error_log
+      - rollback_changes

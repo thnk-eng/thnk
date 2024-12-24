@@ -1,0 +1,62 @@
+frontend:
+  name: QRScanningInterface
+  description: >
+    User interface that allows users to scan QR codes using their device's camera and interacts with the backend to process the scanned data.
+  layout:
+    type: camera_scan
+    action: /api/qr_scan
+    method: POST
+    components:
+      - type: camera_input
+        name: camera
+        label: Scan QR Code
+        description: >
+          Use your device's camera to scan a QR code.
+        required: true
+        validation:
+          type: image
+          format: qr_code
+          error_message: "Please scan a valid QR code."
+      - type: submit_button
+        text: Process QR Code
+        style: primary
+  response_handling:
+    type: dynamic_display
+    components:
+      - type: conditional
+        condition: "action === 'display_product'"
+        components:
+          - ref: '/e-commerce/frontend/components/product_display_component.yaml'
+            properties:
+              product: "{{ data }}"
+      - type: conditional
+        condition: "action === 'add_to_cart'"
+        components:
+          - type: alert
+            variant: success
+            content: "{{ data.message }}"
+      - type: conditional
+        condition: "action === 'redeem_offer'"
+        components:
+          - ref: '/e-commerce/frontend/components/offer_display_component.yaml'
+            properties:
+              offer: "{{ data }}"
+      - type: conditional
+        condition: "error_message"
+        components:
+          - type: alert
+            variant: error
+            content: "{{ error_message }}"
+  validations:
+    - field: camera
+      validations:
+        - required: true
+        - type: image
+        - format: qr_code
+        - error_message: "Please scan a valid QR code."
+  error_handling:
+    type: alert
+    components:
+      - type: text
+        content: "An error occurred while processing the QR code. Please try again."
+        class: "error-message"

@@ -1,0 +1,50 @@
+integration:
+  name: FrontendToRecommendationEngineIntegration
+  description: >
+    Integration settings connecting the frontend interface with the backend recommendation engine.
+  dependencies:
+    frontend:
+      - path: /e-commerce/catalog/products/recommendation_engine/frontend_to_recommendation_engine_frontend.yaml
+    backend:
+      - path: /e-commerce/catalog/products/recommendation_engine/frontend_to_recommendation_engine_backend.yaml
+  api_endpoints:
+    - name: get_recommendations
+      frontend_path: /e-commerce/catalog/products/recommendation_engine/frontend_to_recommendation_engine_frontend.yaml
+      backend_path: /e-commerce/catalog/products/recommendation_engine/frontend_to_recommendation_engine_backend.yaml
+      method: POST
+      frontend_action: submit_form
+      backend_handler: process_recommendations
+  authentication:
+    type: bearer
+    token: YOUR_API_TOKEN_HERE  # Ensure both frontend and backend use the same token
+  data_flow:
+    - source: frontend
+      target: backend
+      action: Submit recommendation request
+      data_transformation: >
+        Convert form data into JSON payload matching backend parameters.
+    - source: backend
+      target: frontend
+      action: Return recommendations
+      data_transformation: >
+        Format backend response into frontend display components.
+  error_propagation:
+    - backend_error:
+        condition: "error_code == 400"
+        frontend_response: "Bad Request - Please check your inputs."
+    - backend_error:
+        condition: "error_code == 401"
+        frontend_response: "Unauthorized - Please log in."
+    - backend_error:
+        condition: "error_code == 404"
+        frontend_response: "No recommendations found."
+    - backend_error:
+        condition: "error_code == 500"
+        frontend_response: "Server error - Please try again later."
+  testing:
+    - type: unit
+      description: Test individual frontend components and backend handlers.
+    - type: integration
+      description: Ensure frontend and backend communicate correctly.
+    - type: performance
+      description: Validate rate limiting and response times.

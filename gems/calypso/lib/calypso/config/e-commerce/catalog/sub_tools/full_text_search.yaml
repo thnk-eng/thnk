@@ -1,0 +1,45 @@
+tool:
+  name: full_text_search
+  description: Perform a full-text search on the product catalog
+  strict: true
+  endpoint: /api/products/search
+  method: GET
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        description: The search query string
+      fuzzy_match:
+        type: boolean
+        description: Whether to use fuzzy matching for the search
+      fields:
+        type: array
+        items:
+          type: string
+        description: Specific fields to search (e.g., name, description, tags)
+    additional_properties: false
+    required:
+      - query
+  response:
+    type: object
+    properties:
+      results:
+        type: array
+        items:
+          type: object
+          properties:
+            product_id:
+              type: string
+            name:
+              type: string
+            relevance_score:
+              type: number
+              format: float
+      total_results:
+        type: integer
+  sub_tools:
+    - spell_checker
+    - synonym_expander
+    - search_analytics_logger
+

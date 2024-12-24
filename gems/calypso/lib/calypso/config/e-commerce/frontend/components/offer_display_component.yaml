@@ -1,0 +1,34 @@
+component:
+  name: OfferDisplayComponent
+  description: >
+    UI component that displays details about a promotional offer.
+  type: widget
+  properties:
+    - name: offer
+      type: object
+      required: true
+      schema:
+        ref: ''
+  layout:
+    type: vertical
+    elements:
+      - type: text
+        content: "Special Offer!"
+        style: heading
+      - type: text
+        content: "{{ offer.description }}"
+      - type: text
+        content: >
+          {{ offer.discount_type == 'percentage' ? 'Discount: ' + offer.discount_value + '%' : 'Discount: $' + offer.discount_value }}
+      - type: text
+        content: "Expires on: {{ offer.expiration_date | date('MM/DD/YYYY') }}"
+      - type: button
+        text: "Redeem Offer"
+        action: "redeem_offer"
+        parameters:
+          offer_code: "{{ offer.code }}"
+      - type: button
+        text: "Back to Home"
+        action: "navigate"
+        parameters:
+          path: "/"

@@ -1,0 +1,136 @@
+frontend:
+  name: DetectFromImageInterface
+  description: >
+    User interface for uploading an image, selecting vision tasks, configuring model preferences,
+    setting confidence thresholds, and displaying the analysis results.
+  layout:
+    type: form
+    action: /api/inventory/detect
+    method: POST
+    enctype: multipart/form-data
+    components:
+      - type: file_upload
+        name: image
+        label: Upload Image
+        accept: image/*
+        required: true
+        description: The image file to analyze
+      - type: checkbox_group
+        name: tasks
+        label: Select Tasks
+        options:
+          - label: Segmentation
+            value: segmentation
+          - label: Object Detection
+            value: object_detection
+          - label: Feature Matching
+            value: feature_matching
+        required: true
+        description: >
+          Choose the vision tasks you want to perform on the uploaded image.
+      - type: collapsible_section
+        label: Model Preferences
+        components:
+          - type: dropdown
+            name: segmentation_model
+            label: Segmentation Model
+            options:
+              - label: SAM
+                value: SAM
+            default: SAM
+            description: Preferred model for segmentation tasks
+          - type: dropdown
+            name: detection_model
+            label: Detection Model
+            options:
+              - label: YOLO_V8
+                value: YOLO_V8
+              - label: Detectron2
+                value: Detectron2
+            default: YOLO_V8
+            description: Preferred model for object detection tasks
+          - type: dropdown
+            name: feature_matching_model
+            label: Feature Matching Model
+            options:
+              - label: LightGlue
+                value: lightglue
+            default: lightglue
+            description: Preferred model for feature matching tasks
+      - type: slider
+        name: confidence_threshold
+        label: Confidence Threshold
+        min: 0
+        max: 1
+        step: 0.01
+        default: 0.5
+        description: Minimum confidence score for detections
+      - type: submit_button
+        text: Analyze Image
+  response_handling:
+    type: display
+    components:
+      - type: conditional
+        condition: "segmentation_results"
+        components:
+          - type: section
+            label: Segmentation Results
+            components:
+              - type: list
+                items:
+                  - type: image
+                    src: "{{ item.mask }}"  # Assuming mask is a Base64 encoded image
+                    alt: "Segmentation Mask"
+                  - type: text
+                    content: "Bounding Box: {{ item.bbox }}"
+                  - type: text
+                    content: "Confidence: {{ item.confidence }}"
+      - type: conditional
+        condition: "detection_results"
+        components:
+          - type: section
+            label: Object Detection Results
+            components:
+              - type: list
+                items:
+                  - type: text
+                    content: "Class: {{ item.class }}"
+                  - type: text
+                    content: "Confidence: {{ item.confidence }}"
+                  - type: text
+                    content: "Bounding Box: {{ item.bbox }}"
+      - type: conditional
+        condition: "feature_matching_results"
+        components:
+          - type: section
+            label: Feature Matching Results
+            components:
+              - type: text
+                content: "Keypoints: {{ feature_matching_results.keypoints }}"
+              - type: text
+                content: "Matches: {{ feature_matching_results.matches }}"
+      - type: section
+        label: Processing Time
+        components:
+          - type: text
+            content: "Total Processing Time: {{ processing_time }} seconds"
+  validations:
+    - field: image
+      validations:
+        - required: true
+        - file_type: ["image/jpeg", "image/png", "image/gif"]
+        - max_size: 10MB
+    - field: tasks
+      validations:
+        - required: true
+        - min_items: 1
+    - field: confidence_threshold
+      validations:
+        - type: number
+        - min: 0
+        - max: 1
+  error_handling:
+    type: alert
+    components:
+      - type: text
+        content: "An error occurred while processing the image. Please try again."

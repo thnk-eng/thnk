@@ -1,0 +1,41 @@
+tool:
+  name: QRScanningTool
+  description: >
+    Enables users to scan QR codes using their device's camera to access product information, add items to the cart, or redeem offers.
+  type: qr_scanning
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      qr_data:
+        type: string
+        description: >
+          The data extracted from the scanned QR code, typically encoded in a URL or a standardized format.
+    required:
+      - qr_data
+  response:
+    type: object
+    properties:
+      action:
+        type: string
+        description: >
+          The action to be performed based on the QR code (e.g., display_product, add_to_cart, redeem_offer).
+      data:
+        type: object
+        description: >
+          Additional data required to perform the action, such as product details or offer information.
+  dependencies:
+    libraries:
+      - name: qrcode_scanner
+        version: ">=2.0.0"
+    backend_services:
+      - product_catalog_service
+      - cart_service
+      - offer_service
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid QR code data.
+    - code: 404
+      message: Not Found - The resource linked to the QR code was not found.
+    - code: 500
+      message: Internal Server Error - Error occurred during QR code processing.

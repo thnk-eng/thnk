@@ -1,0 +1,18 @@
+query {
+    Merch: product(id: "gid://shopify/Product/7910523601143") {
+        ...productInformation
+    }
+
+}
+
+fragment productInformation on Product {
+    totalInventory
+    priceRange {
+        minVariantPrice {
+            amount
+        }
+        maxVariantPrice {
+            amount
+        }
+    }
+}

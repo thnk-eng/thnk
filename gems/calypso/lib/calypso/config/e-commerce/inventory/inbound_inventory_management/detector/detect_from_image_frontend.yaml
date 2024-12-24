@@ -1,0 +1,165 @@
+frontend:
+  name: detect_from_image_frontend
+  description: Interface for uploading and processing images with vision tasks
+  ui_layout:
+    type: object
+    properties:
+      screen_type:
+        type: string
+        enum: [ full_screen, half_screen ]
+        description: Determines if the UI is full screen or half-screen with a swipe-up feature
+        default: full_screen
+      chat_interface:
+        type: object
+        properties:
+          input_prompt:
+            type: string
+            description: "Upload an image and choose the vision tasks you'd like to perform"
+            default: "Please upload an image and select tasks: segmentation, object detection, or feature matching"
+          image_upload_button:
+            type: object
+            properties:
+              label:
+                type: string
+                description: Label for the image upload button
+                default: "Upload Image"
+              action:
+                type: string
+                description: Action triggered by button (opens file browser)
+                default: "open_file_browser"
+          task_selection:
+            type: object
+            properties:
+              label:
+                type: string
+                description: Label for task selection dropdown
+                default: "Select Vision Tasks"
+              dropdown:
+                type: array
+                items:
+                  type: string
+                  enum: [ segmentation, object_detection, feature_matching ]
+                default: []
+                description: "Dropdown for selecting one or more vision tasks"
+          model_preferences:
+            type: object
+            properties:
+              label:
+                type: string
+                description: Label for model preferences section
+                default: "Model Preferences (Optional)"
+              segmentation_model:
+                type: string
+                enum: [ SAM ]
+                default: SAM
+                description: "Preferred segmentation model"
+              detection_model:
+                type: string
+                enum: [ YOLO_V8, Detectron2 ]
+                default: YOLO_V8
+                description: "Preferred detection model"
+              feature_matching_model:
+                type: string
+                enum: [ lightglue ]
+                default: lightglue
+                description: "Preferred feature matching model"
+          confidence_threshold_slider:
+            type: object
+            properties:
+              label:
+                type: string
+                description: Label for confidence threshold slider
+                default: "Set Confidence Threshold"
+              slider:
+                type: number
+                minimum: 0
+                maximum: 1
+                default: 0.5
+                description: Slider to adjust the confidence threshold
+          submit_button:
+            type: object
+            properties:
+              label:
+                type: string
+                description: Label for the submit button
+                default: "Run Detection"
+              action:
+                type: string
+                description: Action to send the form data to the backend
+                default: "submit_form"
+          results_display:
+            type: object
+            properties:
+              label:
+                type: string
+                description: Label for the results section
+                default: "Detection Results"
+              display_type:
+                type: string
+                enum: [ table, cards, overlay ]
+                default: table
+                description: The format for displaying detection results
+          error_message_display:
+            type: object
+            properties:
+              label:
+                type: string
+                description: Error display section
+                default: "Error"
+              display_type:
+                type: string
+                enum: [ banner, modal ]
+                default: banner
+              description: "Error messages related to file upload, invalid tasks, or backend failures"
+  interaction_flow:
+    type: array
+    items:
+      type: object
+      properties:
+        step:
+          type: string
+          enum: [ upload_image, task_selection, model_preference, set_confidence, submit, view_results, handle_error ]
+          description: Each step of the interaction flow
+        action:
+          type: string
+          description: Action corresponding to each step
+          enum: [ open_file_browser, display_dropdown, display_slider, submit_form, display_results, display_error ]
+        description:
+          type: string
+          description: Description of the action the user will take at each step
+        trigger:
+          type: string
+          enum: [ on_click, on_submit, on_change ]
+          description: UI trigger for the corresponding action
+
+  results_mapping:
+    type: object
+    properties:
+      segmentation_results:
+        type: object
+        properties:
+          display_format:
+            type: string
+            enum: [ mask_overlay, list ]
+            default: mask_overlay
+            description: How segmentation results will be shown (overlay on image or list of masks)
+      detection_results:
+        type: object
+        properties:
+          display_format:
+            type: string
+            enum: [ bounding_box_overlay, table ]
+            default: bounding_box_overlay
+            description: Format to display detected objects (bounding box overlay or table with confidence scores)
+      feature_matching_results:
+        type: object
+        properties:
+          display_format:
+            type: string
+            enum: [ keypoint_overlay, table ]
+            default: keypoint_overlay
+            description: Format for displaying feature matches (overlay on image or table of keypoints)
+      processing_time:
+        type: string
+        description: "Shows the total processing time of the detection tasks"
+        default: "Processing completed in {time}s"

@@ -1,0 +1,37 @@
+mutation InventoryBulkAdjustQuantitiesAtLocationMutation($inventoryItemAdjustments: [InventoryAdjustItemInput!]!) {
+    inventoryBulkAdjustQuantityAtLocation(inventoryItemAdjustments: $inventoryItemAdjustments, locationId: "gid://shopify/Location/124656943") {
+        inventoryLevels {
+            id
+            quantities(names: ["available"]) {
+                name
+                quantity
+            }
+            incoming
+            item {
+                id
+                sku
+            }
+            location {
+                id
+                name
+            }
+        }
+    }
+}
+
+# {
+#  "inventoryItemAdjustments": [
+#    {
+#      "inventoryItemId": "gid://shopify/InventoryItem/30322695",
+#      "availableDelta": 3
+#    },
+#    {
+#      "inventoryItemId": "gid://shopify/InventoryItem/113711323",
+#      "availableDelta": 5
+#    },
+#    {
+#      "inventoryItemId": "gid://shopify/InventoryItem/43729076",
+#      "availableDelta": 15
+#    }
+#  ]
+#}

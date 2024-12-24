@@ -1,0 +1,23 @@
+mutation ActivateInventoryItem($inventoryItemId: ID!, $locationId: ID!, $available: Int) {
+    inventoryActivate(inventoryItemId: $inventoryItemId, locationId: $locationId, available: $available) {
+        inventoryLevel {
+            id
+            quantities(names: ["available"]) {
+                name
+                quantity
+            }
+            item {
+                id
+            }
+            location {
+                id
+            }
+        }
+    }
+}
+
+# {
+#  "inventoryItemId": "gid://shopify/InventoryItem/43729076",
+#  "locationId": "gid://shopify/Location/346779380",
+#  "available": 42
+#}

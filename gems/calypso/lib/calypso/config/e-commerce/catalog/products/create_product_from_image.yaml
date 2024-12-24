@@ -1,0 +1,184 @@
+name: create_product_from_image
+description: Create a product using details extracted from an image (name, GTIN, etc.)
+strict: true
+endpoint: /api/products/create-from-image
+method: POST
+parameters:
+  type: object
+  properties:
+    product_image:
+      type: string
+      description: The file path or URL of the product image to analyze
+    product_name:
+      type: string
+      description: The name of the product (provided by the Vision LLM)
+    gtin:
+      type: string
+      description: The GTIN of the product (provided by the Vision LLM)
+    catalog_id:
+      type: string
+      description: The catalog ID where the product will be added
+    handle:
+      type: string
+      description: A unique identifier for the product
+    title:
+      type: string
+      description: The product title
+    body:
+      type: string
+      description: A detailed description of the product
+    vendor:
+      type: string
+      description: The vendor of the product
+    product_category:
+      type: string
+      description: The category to which the product belongs
+    tags:
+      type: array
+      items:
+        type: string
+      description: Tags associated with the product
+    published:
+      type: boolean
+      description: Whether the product is published or not
+      default: false
+    option_one_name:
+      type: string
+      description: Name of the first product option (e.g., Size)
+    option_one_value:
+      type: string
+      description: Value of the first product option (e.g., Large)
+    option_two_name:
+      type: string
+      description: Name of the second product option
+    option_two_value:
+      type: string
+      description: Value of the second product option
+    option_three_name:
+      type: string
+      description: Name of the third product option
+    option_three_value:
+      type: string
+      description: Value of the third product option
+    variant_sku:
+      type: string
+      description: SKU for the product variant
+    variant_grams:
+      type: number
+      description: Weight of the variant in grams
+    variant_inventory_tracker:
+      type: string
+      description: Inventory tracking mechanism (e.g., Shopify)
+    variant_inventory_policy:
+      type: string
+      description: Inventory policy (e.g., continue, deny)
+      default: continue
+    variant_fulfillment_service:
+      type: string
+      description: Fulfillment service for the variant
+    variant_price:
+      type: number
+      description: Price of the variant
+    variant_compare_at_price:
+      type: number
+      description: Compare-at price of the variant
+    variant_requires_shipping:
+      type: boolean
+      description: Whether the variant requires shipping
+      default: true
+    variant_taxable:
+      type: boolean
+      description: Whether the variant is taxable
+      default: true
+    variant_barcode:
+      type: string
+      description: Barcode of the variant
+    image_src:
+      type: string
+      description: Source URL or file path for the product image
+    image_position:
+      type: number
+      description: Position of the image in the product gallery
+      default: 1
+    gift_card:
+      type: boolean
+      description: Whether the product is a gift card
+      default: false
+    seo_title:
+      type: string
+      description: SEO title for the product
+    seo_description:
+      type: string
+      description: SEO description for the product
+    variant_image:
+      type: string
+      description: URL of the variant-specific image
+    variant_weight_unit:
+      type: string
+      description: Weight unit for the variant (e.g., grams, kilograms)
+    variant_tax_code:
+      type: string
+      description: Tax code for the variant
+    cost_per_item:
+      type: number
+      description: Cost per item
+    price_international:
+      type: number
+      description: International price for the product
+    compare_at_price_international:
+      type: number
+      description: International compare-at price for the product
+    product_collection:
+      type: string
+      description: The collection the product belongs to
+    status:
+      type: string
+      description: The status of the product (e.g., active, draft)
+      default: active
+    template_type:
+      type: string
+      description: The type of template to use for formatting tables.
+      enum: [erb, jsx, html]
+      default: erb
+  additional_properties: false
+  required:
+    - product_image
+    - product_name
+    - gtin
+    - catalog_id
+    - handle
+    - title
+    - product_category
+    - variant_price
+    - status
+    - template_type
+response:
+  type: object
+  properties:
+    success:
+      type: boolean
+      description: Indicates whether the product was created successfully
+    product_id:
+      type: string
+      description: The unique identifier of the created product
+    message:
+      type: string
+      description: A message describing the result of the operation
+  additional_properties: false
+sub_tools:
+  - name: image_analysis
+    tools:
+      - Detectron2
+      - YOLO_V8
+      - SAM_2
+  - name: product_categorization
+    description: Tool for categorizing products based on analyzed image data
+    # Define parameters and response schema as needed
+  - name: duplicate_detection
+    description: Tool for detecting duplicate products in the catalog
+    # Define parameters and response schema as needed
+  - name: pricing_suggestion
+    description: Tool for suggesting pricing based on market data and product features
+    # Define parameters and response schema as needed
+  - name: ai_output_parser
+    config_file: /e-commerce/catalog/products/messages/ai_output_parser.yaml

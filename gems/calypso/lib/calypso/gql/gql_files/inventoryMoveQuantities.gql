@@ -1,0 +1,51 @@
+mutation inventoryMoveQuantities($input: InventoryMoveQuantitiesInput!, $quantityNames: [String!]) {
+    inventoryMoveQuantities(input: $input) {
+        userErrors {
+            field
+            message
+            code
+        }
+        inventoryAdjustmentGroup {
+            createdAt
+            reason
+            referenceDocumentUri
+            changes(quantityNames: $quantityNames) {
+                name
+                delta
+            }
+        }
+    }
+}
+
+# {
+#  "input": {
+#    "reason": "damaged",
+#    "referenceDocumentUri": "logistics://some.warehouse/take/2023-01-23T13:14:15Z",
+#    "changes": [
+#      {
+#        "quantity": 10,
+#        "inventoryItemId": "gid://shopify/InventoryItem/30322695",
+#        "from": {
+#          "locationId": "gid://shopify/Location/124656943",
+#          "name": "available",
+#          "ledgerDocumentUri": null
+#        },
+#        "to": {
+#          "locationId": "gid://shopify/Location/124656943",
+#          "name": "reserved",
+#          "ledgerDocumentUri": "logistics://toronto.warehouse/work-orders/2023-01-04/2"
+#        }
+#      }
+#    ]
+#  },
+#  "quantityNames": [
+#    "committed",
+#    "reserved",
+#    "safety_stock",
+#    "quality_control",
+#    "damaged",
+#    "available",
+#    "on_hand",
+#    "incoming"
+#  ]
+#}

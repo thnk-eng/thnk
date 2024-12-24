@@ -1,0 +1,44 @@
+tool:
+  - name: currency_converter
+    description: Convert order total to user's preferred currency
+    strict: true
+    endpoint: /api/checkout/currency_converter
+    method: POST
+    parameters:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The unique identifier of the user
+        order_total:
+          type: number
+          description: The total amount of the order
+        from_currency:
+          type: string
+          description: The currency of the order total
+        to_currency:
+          type: string
+          description: The user's preferred currency
+      additional_properties: false
+      required:
+        - user_id
+        - order_total
+        - from_currency
+        - to_currency
+    response:
+      type: object
+      properties:
+        converted_amount:
+          type: number
+        exchange_rate:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+    sub_tools:
+      - real_time_rate_fetcher
+      - historical_rate_provider
+      - currency_rounding_adjuster
+      - multi_currency_order_splitter

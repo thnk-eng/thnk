@@ -1,0 +1,45 @@
+name: fill_in_seo
+description: >
+  Generate SEO-optimized titles and descriptions for products using their images and existing descriptions.
+strict: true
+endpoint: /api/products/fill-seo
+method: POST
+parameters:
+  type: object
+  properties:
+    product_image:
+      type: string
+      format: binary
+      description: The image file of the product to analyze
+    existing_description:
+      type: string
+      description: Existing description of the product (optional)
+    product_name:
+      type: string
+      description: The name of the product
+    product_category:
+      type: string
+      description: The category to which the product belongs
+  additional_properties: false
+  required:
+    - product_image
+    - product_name
+    - product_category
+response:
+  type: object
+  properties:
+    seo_title:
+      type: string
+      description: Generated SEO-optimized title for the product
+    seo_description:
+      type: string
+      description: Generated SEO-optimized description for the product
+    keywords:
+      type: array
+      items:
+        type: string
+      description: Extracted SEO keywords from the product details
+  additional_properties: false
+sub_tools:
+  - name: keyword_extractor
+  - name: content_generator

@@ -1,0 +1,38 @@
+# File: /e-commerce/catalog/products/sub_tools/product_categorization.yaml
+
+name: product_categorization
+description: >
+  Categorizes products based on image analysis results and extracted keywords.
+
+parameters:
+  type: object
+  properties:
+    analysis_results:
+      type: object
+      description: Results from image analysis tools.
+  required:
+    - analysis_results
+
+response:
+  type: object
+  properties:
+    categories:
+      type: array
+      items:
+        type: string
+      description: List of categories the product belongs to.
+    product_name:
+      type: string
+      description: Suggested name for the product.
+    tags:
+      type: array
+      items:
+        type: string
+      description: List of tags for the product.
+
+dependencies:
+  services:
+    - taxonomy_service
+    - keyword_extraction_service
+
+# Additional configurations for category mapping, confidence thresholds, etc., can be added here.

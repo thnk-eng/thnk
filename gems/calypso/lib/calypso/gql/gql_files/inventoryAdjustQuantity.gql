@@ -1,0 +1,35 @@
+mutation AdjustInventoryQuantity($input: InventoryAdjustQuantityInput!) {
+    inventoryAdjustQuantity(input: $input) {
+        inventoryLevel {
+            id
+            quantities(names: ["available"]) {
+                name
+                quantity
+            }
+            incoming
+            item {
+                id
+                sku
+            }
+            location {
+                id
+                name
+            }
+        }
+    }
+}
+
+# {
+#  "input": {
+#    "inventoryLevelId": "gid://shopify/InventoryLevel/964427794?inventory_item_id=43729076",
+#    "availableDelta": 3
+#  }
+#}
+
+
+# {
+#  "input": {
+#    "inventoryLevelId": "gid://shopify/InventoryLevel/964427794?inventory_item_id=43729076",
+#    "availableDelta": -2
+#  }
+#}

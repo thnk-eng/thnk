@@ -1,0 +1,72 @@
+service:
+  name: CartService
+  description: >
+    Handles user shopping carts, including adding items, removing items, and retrieving cart contents.
+  endpoints:
+    - name: add_to_cart
+      path: /api/cart/items
+      method: POST
+      parameters:
+        - name: user_id
+          in: body
+          required: true
+          type: integer
+        - name: product_id
+          in: body
+          required: true
+          type: integer
+        - name: quantity
+          in: body
+          required: false
+          type: integer
+          default: 1
+      responses:
+        200:
+          description: Product added to cart successfully.
+        404:
+          description: Product not found.
+    - name: get_cart
+      path: /api/cart
+      method: GET
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Current contents of the user's cart.
+          schema:
+            $ref: '#/definitions/Cart'
+  models:
+    Cart:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/definitions/CartItem'
+    CartItem:
+      type: object
+      properties:
+        product:
+          $ref: '#/definitions/Product'
+        quantity:
+          type: integer
+      required:
+        - product
+        - quantity
+    Product:
+      $ref: '/e-commerce/catalog/services/product_catalog_service.yaml#/models/Product'
+  authentication:
+    type: bearer
+    token: YOUR_API_TOKEN_HERE  # Replace with actual authentication method
+  error_handling:
+    - code: 404
+      message: Product or Cart not found.
+    - code: 401
+      message: Unauthorized access.
+    - code: 500
+      message: Internal Server Error.

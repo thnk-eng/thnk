@@ -1,0 +1,42 @@
+mutation inventoryItemUpdate($id: ID!, $input: InventoryItemInput!) {
+    inventoryItemUpdate(id: $id, input: $input) {
+        inventoryItem {
+            id
+            unitCost {
+                amount
+            }
+            tracked
+            countryCodeOfOrigin
+            provinceCodeOfOrigin
+            harmonizedSystemCode
+            countryHarmonizedSystemCodes(first: 1) {
+                edges {
+                    node {
+                        harmonizedSystemCode
+                        countryCode
+                    }
+                }
+            }
+        }
+        userErrors {
+            message
+        }
+    }
+}
+
+# {
+#  "id": "gid://shopify/InventoryItem/43729076",
+#  "input": {
+#    "cost": 145.89,
+#    "tracked": false,
+#    "countryCodeOfOrigin": "US",
+#    "provinceCodeOfOrigin": "OR",
+#    "harmonizedSystemCode": "621710",
+#    "countryHarmonizedSystemCodes": [
+#      {
+#        "harmonizedSystemCode": "6217109510",
+#        "countryCode": "CA"
+#      }
+#    ]
+#  }
+#}

@@ -1,0 +1,30 @@
+name: table_formatter
+description: >
+  Formats markdown tables using predefined templates (ERB, JSX, HTML) to ensure consistency and readability.
+endpoint: /api/tools/messages/table-formatter
+method: POST
+parameters:
+  type: object
+  properties:
+    table_markdown:
+      type: string
+      description: The raw markdown table to format.
+    template_type:
+      type: string
+      description: The type of template to use for formatting the table.
+      enum: [erb, jsx, html]
+      default: erb
+  additional_properties: false
+  required:
+    - table_markdown
+    - template_type
+response:
+  type: object
+  properties:
+    formatted_table:
+      type: string
+      description: The formatted table using the specified template.
+  additional_properties: false
+sub_tools:
+  - name: table_template
+    config_file: /e-commerce/catalog/products/messages/table_template.yaml

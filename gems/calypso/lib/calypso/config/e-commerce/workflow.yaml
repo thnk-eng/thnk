@@ -1,0 +1,118 @@
+workflow:
+  name: CreateProductFromImage_Workflow
+  description: >
+    Workflow for creating a product from an image, including image analysis, SEO content generation,
+    categorization, duplicate detection, and pricing suggestion.
+  steps:
+    - step: upload_image
+      description: Upload and validate the product image.
+      action: receive_image
+      input:
+        source: frontend
+        field: product_image
+
+    - step: image_analysis
+      description: Perform image analysis using the image pipeline.
+      tool: image_analysis
+      config: /e-commerce/pipeline/image_pipeline.yaml
+      input:
+        image: "{{ upload_image.product_image }}"
+
+    - step: product_categorization
+      description: Categorize the product based on image analysis results.
+      tool: product_categorization
+      config: /e-commerce/catalog/products/sub_tools/product_categorization.yaml
+      input:
+        analysis_results: "{{ image_analysis.output }}"
+
+    - step: duplicate_detection
+      description: Check for duplicate products in the catalog.
+      tool: inventory_check
+      config: /e-commerce/catalog/products/sub_tools/inventory_check.yaml
+      input:
+        product_features: "{{ product_categorization.product_features }}"
+        existing_products: "{{ catalog_service.get_products() }}"
+
+    - step: pricing_suggestion
+      description: Suggest pricing based on market data and product features.
+      tool: pricing_suggestion
+      config: /e-commerce/catalog/products/sub_tools/pricing_suggestion.yaml
+      input:
+        product_features: "{{ product_categorization.product_features }}"
+        market_data: "{{ market_data_service.get_current_data() }}"
+
+    - step: fill_in_seo
+      description: Generate SEO-optimized titles and descriptions.
+      tool: fill_in_seo
+      config: /e-commerce/catalog/products/sub_tools/fill_in_seo.yaml
+      input:
+        product_image: "{{ upload_image.product_image }}"
+        existing_description: "{{ product_categorization.product_description }}"
+        product_name: "{{ product_name }}"
+        product_category: "{{ product_category }}"
+    - step: create_product
+      description: Create the product in the catalog with all details.
+      action: create_product_entry
+      input:
+        product_details:
+          product_name: "{{ product_name }}"
+          gtin: "{{ gtin }}"
+          catalog_id: "{{ catalog_id }}"
+          handle: "{{ handle }}"
+          title: "{{ title }}"
+          body: "{{ body }}"
+          vendor: "{{ vendor }}"
+          product_category: "{{ product_category }}"
+          tags: "{{ tags }}"
+          published: "{{ published }}"
+          option_one_name: "{{ option_one_name }}"
+          option_one_value: "{{ option_one_value }}"
+          option_two_name: "{{ option_two_name }}"
+          option_two_value: "{{ option_two_value }}"
+          option_three_name: "{{ option_three_name }}"
+          option_three_value: "{{ option_three_value }}"
+          variant_sku: "{{ variant_sku }}"
+          variant_grams: "{{ variant_grams }}"
+          variant_inventory_tracker: "{{ variant_inventory_tracker }}"
+          variant_inventory_policy: "{{ variant_inventory_policy }}"
+          variant_fulfillment_service: "{{ variant_fulfillment_service }}"
+          variant_price: "{{ variant_price }}"
+          variant_compare_at_price: "{{ variant_compare_at_price }}"
+          variant_requires_shipping: "{{ variant_requires_shipping }}"
+          variant_taxable: "{{ variant_taxable }}"
+          variant_barcode: "{{ variant_barcode }}"
+          image_src: "{{ image_src }}"
+          image_position: "{{ image_position }}"
+          gift_card: "{{ gift_card }}"
+          seo_title: "{{ fill_in_seo.seo_title }}"
+          seo_description: "{{ fill_in_seo.seo_description }}"
+          variant_image: "{{ variant_image }}"
+          variant_weight_unit: "{{ variant_weight_unit }}"
+          variant_tax_code: "{{ variant_tax_code }}"
+          cost_per_item: "{{ cost_per_item }}"
+          price_international: "{{ price_international }}"
+          compare_at_price_international: "{{ compare_at_price_international }}"
+          product_collection: "{{ product_collection }}"
+          status: "{{ status }}"
+    - step: finalize_processing
+      description: Complete the workflow and notify the user.
+      action: send_confirmation
+      input:
+        success: true
+        product_id: "{{ create_product.product_id }}"
+        product_name: "{{ product_name }}"
+        message: "Product '{{ product_name }}' created successfully with SEO optimizations."
+  triggers:
+    - event: form_submitted
+      step: upload_image
+  # concurrency: parallel
+  concurrency: sequential
+  error_handling:
+    on_error: notify_user
+    actions:
+      - send_error_log
+      - rollback_changes
+      - retry_step  # Implement retries for transient errors.
+  retry_policy:
+    max_retries: 3
+    backoff_strategy: exponential

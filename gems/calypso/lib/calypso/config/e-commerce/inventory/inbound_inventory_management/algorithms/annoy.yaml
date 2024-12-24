@@ -1,0 +1,63 @@
+algorithm:
+  name: Annoy
+  description: >
+    Implements Annoy (Approximate Nearest Neighbors Oh Yeah) for efficient approximate nearest neighbor searches.
+    Designed for memory efficiency and high-speed retrieval, suitable for real-time applications.
+  type: vector_search
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      num_trees:
+        type: integer
+        description: >
+          The number of trees to build for the Annoy index. More trees give higher precision at the cost of increased memory and indexing time.
+        default: 10
+      dimension:
+        type: integer
+        description: >
+          The dimensionality of the vectors.
+        default: 128
+      metric:
+        type: string
+        description: >
+          The distance metric to use (e.g., angular, euclidean, manhattan, hamming, dot).
+        enum: [ angular, euclidean, manhattan, hamming, dot ]
+        default: angular
+    additional_properties: false
+    required:
+      - dimension
+      - metric
+  response:
+    type: object
+    properties:
+      index:
+        type: string
+        description: >
+          The identifier for the created Annoy index.
+      search_results:
+        type: array
+        description: >
+          A list of nearest neighbors for the query vector.
+        items:
+          type: object
+          properties:
+            vector_id:
+              type: integer
+              description: >
+                The identifier of the nearest vector.
+            distance:
+              type: number
+              description: >
+                The distance between the query vector and the nearest vector.
+  dependencies:
+    libraries:
+      - name: annoy
+        version: ">=1.17.0"
+      - name: numpy
+        version: ">=1.18.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid parameters. Ensure all required fields are provided with valid values.
+    - code: 500
+      message: Internal Server Error - Error occurred during Annoy index creation or search.

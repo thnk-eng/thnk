@@ -1,0 +1,32 @@
+mutation inventorySetScheduledChanges($input: InventorySetScheduledChangesInput!) {
+    inventorySetScheduledChanges(input: $input) {
+        scheduledChanges {
+            # InventoryScheduledChange fields
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+# {
+#  "input": {
+#    "items": [
+#      {
+#        "inventoryItemId": "gid://shopify/<objectName>/10079785100",
+#        "ledgerDocumentUri": "https://example.myshopify.com",
+#        "locationId": "gid://shopify/<objectName>/10079785100",
+#        "scheduledChanges": [
+#          {
+#            "expectedAt": "2019-09-07T15:50:00Z",
+#            "fromName": "<your-fromName>",
+#            "toName": "<your-toName>"
+#          }
+#        ]
+#      }
+#    ],
+#    "reason": "<your-reason>",
+#    "referenceDocumentUri": "https://example.myshopify.com"
+#  }
+#}

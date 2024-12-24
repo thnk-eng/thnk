@@ -1,0 +1,68 @@
+algorithm:
+  name: HNSW
+  description: >
+    Implements HNSW (Hierarchical Navigable Small World) for approximate nearest neighbor searches.
+    Optimized for high performance and scalability, suitable for real-time vector searches in large datasets.
+  type: vector_search
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      ef_construction:
+        type: integer
+        description: >
+          The size of the dynamic list for the nearest neighbors during the construction phase.
+        default: 200
+      M:
+        type: integer
+        description: >
+          The number of bi-directional links created for each new element.
+        default: 16
+      dimension:
+        type: integer
+        description: >
+          The dimensionality of the vectors.
+        default: 128
+      metric:
+        type: string
+        description: >
+          The distance metric to use (e.g., L2, InnerProduct).
+        enum: [ L2, InnerProduct ]
+        default: L2
+    additional_properties: false
+    required:
+      - dimension
+      - metric
+  response:
+    type: object
+    properties:
+      index:
+        type: string
+        description: >
+          The identifier for the created HNSW index.
+      search_results:
+        type: array
+        description: >
+          A list of nearest neighbors for the query vector.
+        items:
+          type: object
+          properties:
+            vector_id:
+              type: integer
+              description: >
+                The identifier of the nearest vector.
+            distance:
+              type: number
+              description: >
+                The distance between the query vector and the nearest vector.
+  dependencies:
+    libraries:
+      - name: hnswlib
+        version: ">=0.5.0"
+      - name: numpy
+        version: ">=1.18.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid parameters. Ensure all required fields are provided with valid values.
+    - code: 500
+      message: Internal Server Error - Error occurred during HNSW index creation or search.

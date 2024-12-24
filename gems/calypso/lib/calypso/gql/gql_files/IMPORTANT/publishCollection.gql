@@ -1,0 +1,17 @@
+mutation collectionPublish($input: CollectionPublishInput!) {
+    collectionPublish(input: $input) {
+        collection {
+            # Collection fields
+        }
+        collectionPublications {
+            # CollectionPublication fields
+        }
+        shop {
+            # Shop fields
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}

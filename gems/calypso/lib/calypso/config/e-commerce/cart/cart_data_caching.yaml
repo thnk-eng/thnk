@@ -1,0 +1,53 @@
+tool:
+    - name: cart_data_caching
+      description: Cache or retrieve cart data for a user
+      strict: true
+      endpoint: /api/cart/cache
+      method: POST
+      parameters:
+        type: object
+        properties:
+          user_id:
+            type: string
+            description: The unique identifier of the user
+          action:
+            type: string
+            enum: [ cache, retrieve ]
+            description: Whether to cache new data or retrieve existing data
+          cart_data:
+            type: object
+            description: The cart data to cache (required only for 'cache' action)
+            properties:
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: string
+                    quantity:
+                      type: integer
+              last_updated:
+                type: string
+                format: date-time
+        additional_properties: false
+        required:
+          - user_id
+          - action
+      response:
+        type: object
+        properties:
+          success:
+            type: boolean
+            description: Indicates whether the operation was successful
+          message:
+            type: string
+            description: A message describing the result of the operation
+          cart_data:
+            type: object
+            description: The retrieved cart data (for 'retrieve' action)
+      sub_tools:
+        - data_compression
+        - cache_expiration_management
+        - cross_device_synchronization
+        - offline_mode_support

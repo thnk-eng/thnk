@@ -1,0 +1,222 @@
+tool:
+  name: Pgvector
+  description: >
+    PostgreSQL vector search adapter for storing and querying vector embeddings using the pgvector extension.
+  type: vector_search_adapter
+  version: "1.0"
+  dependencies:
+    gems:
+      - name: sequel
+        version: "~>5.68.0"
+      - name: pgvector
+        version: "~>0.2"
+    llm_client:
+      description: The LLM client used to generate embeddings.
+  parameters:
+    type: object
+    properties:
+      url:
+        type: string
+        format: uri
+        description: The URL of the PostgreSQL database.
+      index_name:
+        type: string
+        description: The name of the table to use for the index.
+      llm:
+        type: object
+        description: The LLM client instance.
+      namespace:
+        type: string
+        description: The namespace to use for the index when inserting/querying.
+        default: null
+    required:
+      - url
+      - index_name
+      - llm
+    additionalProperties: false
+  methods:
+    - name: initialize
+      description: Initializes the Pgvector adapter.
+      parameters:
+        - name: url
+          type: string
+          format: uri
+          description: The URL of the PostgreSQL database.
+        - name: index_name
+          type: string
+          description: The name of the table to use for the index.
+        - name: llm
+          type: object
+          description: The LLM client instance.
+        - name: namespace
+          type: string
+          description: The namespace for the index.
+          default: null
+      returns:
+        type: object
+        description: An instance of the Pgvector adapter.
+    - name: add_texts
+      description: Adds a list of texts to the index.
+      parameters:
+        - name: texts
+          type: array
+          items:
+            type: string
+          description: The texts to add to the index.
+        - name: ids
+          type: array
+          items:
+            type: integer
+          description: The IDs to assign to the texts.
+          default: null
+      returns:
+        type: array
+        items:
+          type: integer
+        description: The IDs of the added texts.
+    - name: update_texts
+      description: Updates texts in the index with new embeddings.
+      parameters:
+        - name: texts
+          type: array
+          items:
+            type: string
+          description: The texts to update in the index.
+        - name: ids
+          type: array
+          items:
+            type: integer
+          description: The IDs of the texts to update.
+      returns:
+        type: array
+        items:
+          type: integer
+        description: The IDs of the updated texts.
+    - name: remove_texts
+      description: Removes texts from the index.
+      parameters:
+        - name: ids
+          type: array
+          items:
+            type: integer
+          description: The IDs of the texts to remove.
+      returns:
+        type: integer
+        description: The number of texts removed.
+    - name: similarity_search
+      description: Searches for similar texts based on a query string.
+      parameters:
+        - name: query
+          type: string
+          description: The query text to search for.
+        - name: k
+          type: integer
+          description: The number of top results to return.
+          default: 4
+      returns:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+            content:
+              type: string
+            distance:
+              type: number
+          required:
+            - id
+            - content
+            - distance
+        description: The search results with IDs, contents, and distances.
+    - name: similarity_search_by_vector
+      description: Searches for similar texts based on a vector embedding.
+      parameters:
+        - name: embedding
+          type: array
+          items:
+            type: number
+          description: The vector embedding to search for.
+        - name: k
+          type: integer
+          description: The number of top results to return.
+          default: 4
+      returns:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+            content:
+              type: string
+            distance:
+              type: number
+          required:
+            - id
+            - content
+            - distance
+        description: The search results with IDs, contents, and distances.
+    - name: ask
+      description: >
+        Asks a question and returns an answer using Retrieval-Augmented Generation (RAG).
+      parameters:
+        - name: question
+          type: string
+          description: The question to ask.
+        - name: k
+          type: integer
+          description: The number of top results to include in context.
+          default: 4
+      returns:
+        type: object
+        properties:
+          answer:
+            type: string
+            description: The generated answer.
+          context:
+            type: string
+            description: The context used for generating the answer.
+        required:
+          - answer
+          - context
+  operator_options:
+    type: array
+    items:
+      type: string
+    description: Supported distance operators.
+    default:
+      - cosine_distance
+      - euclidean_distance
+      - inner_product_distance
+  default_operator:
+    type: string
+    description: The default distance operator.
+    default: cosine_distance
+  embeddings:
+    vector_dimensions:
+      type: integer
+      description: The dimensionality of the vector embeddings.
+      required: true
+    embedding_function:
+      type: function
+      description: Function to generate embeddings using the LLM.
+  database_schema:
+    description: Database schema for storing embeddings.
+    table_name: "{{ index_name }}"
+    columns:
+      - name: id
+        type: primary_key
+      - name: content
+        type: text
+      - name: vectors
+        type: vector
+        dimensions: "{{ embeddings.vector_dimensions }}"
+      - name: namespace
+        type: text
+        default: null
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid parameters.
+    - code: 500
+      message: Internal Server Error - Error during vector search operation.

@@ -1,0 +1,7 @@
+query {
+    product(id: "gid://shopify/Product/108828309") {
+        title
+        description
+        onlineStoreUrl
+    }
+}

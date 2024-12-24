@@ -1,0 +1,33 @@
+# Adjust the available quantity of a given item at a given location with reason 'correction'
+mutation inventoryAdjustQuantities($input: InventoryAdjustQuantitiesInput!) {
+    inventoryAdjustQuantities(input: $input) {
+        userErrors {
+            field
+            message
+        }
+        inventoryAdjustmentGroup {
+            createdAt
+            reason
+            referenceDocumentUri
+            changes {
+                name
+                delta
+            }
+        }
+    }
+}
+
+# {
+#  "input": {
+#    "reason": "correction",
+#    "name": "available",
+#    "referenceDocumentUri": "logistics://some.warehouse/take/2023-01/13",
+#    "changes": [
+#      {
+#        "delta": -4,
+#        "inventoryItemId": "gid://shopify/InventoryItem/30322695",
+#        "locationId": "gid://shopify/Location/124656943"
+#      }
+#    ]
+#  }
+#}

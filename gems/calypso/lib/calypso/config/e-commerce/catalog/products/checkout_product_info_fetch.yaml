@@ -1,0 +1,52 @@
+tool:
+  - name: checkout_product_info_fetch
+    description: Retrieve detailed product information during checkout
+    strict: true
+    endpoint: /api/checkout/products
+    method: GET
+    parameters:
+      type: object
+      properties:
+        product_ids:
+          type: array
+          items:
+            type: string
+          description: List of product IDs to fetch information for
+      additional_properties: false
+      required:
+        - product_ids
+    response:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              name:
+                type: string
+              price:
+                type: number
+              weight:
+                type: number
+              dimensions:
+                type: object
+                properties:
+                  length:
+                    type: number
+                  width:
+                    type: number
+                  height:
+                    type: number
+              availability:
+                type: string
+                enum: [ in_stock, low_stock, out_of_stock ]
+        message:
+          type: string
+    sub_tools:
+      - inventory_checker
+      - price_updater
+      - product_bundler
+      - cross_sell_recommender

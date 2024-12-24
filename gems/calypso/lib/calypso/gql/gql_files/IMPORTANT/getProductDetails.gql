@@ -1,0 +1,20 @@
+{
+    product(id: "gid://shopify/Product/9546467606775") {
+        title
+        description
+        onlineStoreUrl
+        totalInventory
+        category {
+            name
+            id
+            parentId
+        }
+        featuredMedia {
+            preview {
+                image {
+                    url
+                }
+            }
+        }
+    }
+}

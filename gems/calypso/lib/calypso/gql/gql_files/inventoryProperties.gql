@@ -1,0 +1,8 @@
+query inventoryProperties {
+    inventoryProperties {
+        quantityNames {
+            name
+            isInUse
+        }
+    }
+}

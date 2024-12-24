@@ -1,0 +1,193 @@
+tool:
+  name: frontend_to_recommendation_engine
+  description: >
+    Get personalized product recommendations for a user based on their browsing history and preferences.
+  type: recommendation_engine
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      user_id:
+        type: string
+        description: The unique identifier of the user.
+      browsing_history:
+        type: array
+        items:
+          type: string
+        description: List of product IDs the user has recently viewed.
+      limit:
+        type: integer
+        description: Maximum number of recommendations to return.
+        default: 10
+      category:
+        type: string
+        description: Specific category to focus recommendations on.
+    additional_properties: false
+    required:
+      - user_id
+  response:
+    type: object
+    properties:
+      recommendations:
+        type: array
+        description: A list of recommended products.
+        items:
+          type: object
+          properties:
+            product_id:
+              type: string
+              description: Unique identifier for the product.
+            name:
+              type: string
+              description: Name of the product.
+            price:
+              type: number
+              description: Price of the product.
+            image_url:
+              type: string
+              format: uri
+              description: URL to the product image.
+            relevance_score:
+              type: number
+              description: Score indicating the relevance of the recommendation.
+  sub_tools:
+    - collaborative_filtering
+    - content_based_filtering
+    - hybrid_recommendation
+    - real_time_personalization
+    - re-ranking
+    - inventory_check
+    - /Users/macadelic/toolchains/e-commerce/inventory/inbound_inventory_management/detector/detect_from_image.yaml
+  rate_limit:
+    requests_per_minute: 60
+    burst_capacity: 10
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid parameters.
+    - code: 401
+      message: Unauthorized - Invalid or missing authentication token.
+    - code: 404
+      message: Not Found - No recommendations available.
+    - code: 500
+      message: Internal Server Error - Unexpected server error.
+frontend:
+  name: RecommendationEngineInterface
+  description: >
+    User interface for providing user ID, browsing history, selecting recommendation parameters,
+    and displaying personalized product recommendations.
+  layout:
+    type: form
+    action: /api/recommendations
+    method: POST
+    enctype: application/json
+    components:
+      - type: text_input
+        name: user_id
+        label: User ID
+        required: true
+        description: The unique identifier of the user.
+      - type: multi_select
+        name: browsing_history
+        label: Browsing History
+        options:
+          - label: Product 1
+            value: P001
+          - label: Product 2
+            value: P002
+          - label: Product 3
+            value: P003
+          - label: Product 4
+            value: P004
+          - label: Product 5
+            value: P005
+        required: true
+        description: List of product IDs the user has recently viewed.
+      - type: number_input
+        name: limit
+        label: Number of Recommendations
+        min: 1
+        max: 50
+        default: 10
+        description: Maximum number of recommendations to return.
+      - type: dropdown
+        name: category
+        label: Category (Optional)
+        options:
+          - label: All Categories
+            value: all
+          - label: Electronics
+            value: electronics
+          - label: Books
+            value: books
+          - label: Clothing
+            value: clothing
+          - label: Home & Kitchen
+            value: home_kitchen
+        required: false
+        description: Specific category to focus recommendations on.
+      - type: submit_button
+        text: Get Recommendations
+  response_handling:
+    type: display
+    components:
+      - type: conditional
+        condition: "recommendations.length > 0"
+        components:
+          - type: section
+            label: Recommended Products
+            components:
+              - type: grid
+                columns: 3
+                gap: 20px
+                items:
+                  - type: card
+                    components:
+                      - type: image
+                        src: "{{ item.image_url }}"
+                        alt: "{{ item.name }}"
+                        class: "product-image"
+                      - type: text
+                        content: "{{ item.name }}"
+                        class: "product-name"
+                      - type: text
+                        content: "Price: ${{ item.price }}"
+                        class: "product-price"
+                      - type: text
+                        content: "Relevance: {{ (item.relevance_score * 100).toFixed(2) }}%"
+                        class: "product-relevance"
+      - type: conditional
+        condition: "recommendations.length === 0"
+        components:
+          - type: alert
+            variant: warning
+            content: "No recommendations available based on the provided information."
+      - type: section
+        label: Total Recommendations
+        components:
+          - type: text
+            content: "Total Recommendations: {{ recommendations.length }}"
+            class: "total-recommendations"
+  validations:
+    - field: user_id
+      validations:
+        - required: true
+        - regex: "^[a-zA-Z0-9_-]{3,20}$"
+    - field: browsing_history
+      validations:
+        - required: true
+        - min_items: 1
+    - field: limit
+      validations:
+        - type: integer
+        - min: 1
+        - max: 50
+    - field: category
+      validations:
+        - type: string
+        - enum: [ all, electronics, books, clothing, home_kitchen ]
+  error_handling:
+    type: alert
+    components:
+      - type: text
+        content: "An error occurred while fetching recommendations. Please try again later."
+        class: "error-message"

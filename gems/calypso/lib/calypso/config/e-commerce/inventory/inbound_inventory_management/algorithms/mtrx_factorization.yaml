@@ -1,0 +1,79 @@
+algorithm:
+  name: MatrixFactorization
+  description: >
+    Implements Matrix Factorization for collaborative filtering to generate personalized product recommendations.
+    Decomposes the user-item interaction matrix into user and item latent feature matrices to predict missing entries.
+  type: collaborative_filtering
+  version: 1.0
+  parameters:
+    type: object
+    properties:
+      user_item_matrix:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          A 2D array representing user interactions with items (e.g., ratings or view counts).
+      latent_features:
+        type: integer
+        description: >
+          The number of latent features to decompose the matrix into.
+        default: 20
+      learning_rate:
+        type: number
+        description: >
+          The learning rate for the optimization algorithm.
+        default: 0.01
+      regularization:
+        type: number
+        description: >
+          The regularization parameter to prevent overfitting.
+        default: 0.1
+      iterations:
+        type: integer
+        description: >
+          The number of iterations to perform during training.
+        default: 100
+    additional_properties: false
+    required:
+      - user_item_matrix
+  response:
+    type: object
+    properties:
+      user_latent_matrix:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          The decomposed user latent feature matrix.
+      item_latent_matrix:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          The decomposed item latent feature matrix.
+      predicted_matrix:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: >
+          The predicted user-item interaction matrix after matrix factorization.
+  dependencies:
+    libraries:
+      - name: numpy
+        version: ">=1.18.0"
+      - name: scipy
+        version: ">=1.4.0"
+  error_handling:
+    - code: 400
+      message: Bad Request - Invalid input matrix. Ensure the matrix is non-empty and properly formatted.
+    - code: 500
+      message: Internal Server Error - Error occurred during matrix factorization.

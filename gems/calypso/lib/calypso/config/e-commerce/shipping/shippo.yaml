@@ -1,0 +1,127 @@
+tool:
+  - name: shippo_tool
+    description: Calculate shipping options and costs, create, and print labels
+    strict: true
+    endpoint: /api/shipping
+    method: POST
+    parameters:
+      type: object
+      properties:
+        address_from:
+          type: object
+          properties:
+            name:
+              type: string
+            street1:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            zip:
+              type: string
+            country:
+              type: string
+          required:
+            - name
+            - street1
+            - city
+            - state
+            - zip
+            - country
+        address_to:
+          type: object
+          properties:
+            name:
+              type: string
+            street1:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            zip:
+              type: string
+            country:
+              type: string
+          required:
+            - name
+            - street1
+            - city
+            - state
+            - zip
+            - country
+        parcels:
+          type: array
+          items:
+            type: object
+            properties:
+              length:
+                type: string
+              width:
+                type: string
+              height:
+                type: string
+              distance_unit:
+                type: string
+                enum: [in, cm]
+              weight:
+                type: string
+              mass_unit:
+                type: string
+                enum: [lb, kg]
+            required:
+              - length
+              - width
+              - height
+              - distance_unit
+              - weight
+              - mass_unit
+        async:
+          type: boolean
+          default: false
+      required:
+        - address_from
+        - address_to
+        - parcels
+    response:
+      type: object
+      properties:
+        shipment_id:
+          type: string
+        status:
+          type: string
+        shipping_options:
+          type: array
+          items:
+            type: object
+            properties:
+              carrier:
+                type: string
+              service:
+                type: string
+              amount:
+                type: string
+              currency:
+                type: string
+              estimated_days:
+                type: integer
+              arrives_by:
+                type: string
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              source:
+                type: string
+              code:
+                type: string
+              text:
+                type: string
+    sub_tools:
+      - label_printer
+      - tracking_updater
+      - address_validator
+
+
