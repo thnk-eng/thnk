@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="currentColor">
+  <!-- First dot -->
+  <circle cx="8" cy="16" r="2">
+    <animate attributeName="opacity" values="1;0" dur="3s" begin="0s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Second dot -->
+  <circle cx="16" cy="16" r="2">
+    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Third dot -->
+  <circle cx="24" cy="16" r="2">
+    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="1s" repeatCount="indefinite"/>
+  </circle>
+</svg>

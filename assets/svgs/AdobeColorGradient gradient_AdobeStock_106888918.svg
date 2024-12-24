@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="640" height="640">
+<defs>
+<linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%"> <stop offset="0%" style="stop-color:rgb(4,49,46);stop-opacity:1" /> <stop offset="43.169400095939636%" style="stop-color:rgb(65,138,119);stop-opacity:1" /> <stop offset="69.67213153839111%" style="stop-color:rgb(158,209,168);stop-opacity:1" /> <stop offset="85.51912307739258%" style="stop-color:rgb(102,130,90);stop-opacity:1" /> <stop offset="100%" style="stop-color:rgb(7,7,7);stop-opacity:1" /> </linearGradient>
+</defs>
+<rect width="640" height="640" fill="url(#gradient)"/>
+</svg>

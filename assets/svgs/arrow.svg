@@ -1,0 +1,14 @@
+<!--
+  - Copyright (c) 2024. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+  - Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan. 
+  - Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna. 
+  - Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus. 
+  - Vestibulum commodo. Ut rhoncus gravida arcu. 
+-->
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     x="0" y="0" width="100%" viewBox="0 0 1024 672" xml:space="preserve">
+  <title>Arrow Icon</title>
+  <desc>An arrow pointing right</desc>
+  <path fill="white" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" />
+</svg>
