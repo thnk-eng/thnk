@@ -1,0 +1,21 @@
+[package]
+name = "tokenizers"
+version = "0.5.3"
+license = "Apache-2.0"
+authors = ["Andrew Kane <andrew@ankane.org>"]
+edition = "2021"
+rust-version = "1.63.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+magnus = "0.7"
+onig = { version = "6", default-features = false }
+serde = { version = "1", features = ["rc", "derive"] }
+
+[dependencies.tokenizers]
+version = "=0.20.3" # also update in from_pretrained.rb
+default-features = false
+features = ["progressbar", "onig", "esaxx_fast"]
