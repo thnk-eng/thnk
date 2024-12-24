@@ -1,39 +1,50 @@
 # JwtEngin
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/jwt_engin`. To experiment with that code, run `bin/console` for an interactive prompt.
-
 ## Installation
+Add this line to your application's Gemfile:
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```ruby
+gem "jwt_engin"
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
-
+And then execute:
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+$ bundle
+```
+
+Or install it yourself as:
+```bash
+$ gem install jwt_engin
 ```
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+# Gemfile
+gem 'jwt_engin', path: 'path/to/jwt_engin'
+```
 
-## Development
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  mount JwtEngin::Engine => "/auth"
+  
+  namespace :api do
+    resources :messages, only: [:create]
+  end
+end
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```ruby
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::API # OR < ActionController::Base
+  include JwtEngin::Authenticable
+end
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/jwt_engin. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/jwt_engin/blob/master/CODE_OF_CONDUCT.md).
-
-## Code of Conduct
-
-Everyone interacting in the JwtEngin project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/jwt_engin/blob/master/CODE_OF_CONDUCT.md).
+```ruby
+# config/initializers/jwt_engin.rb
+JwtEngin.setup do |config|
+  config.token_lifetime = 2.days # Customize token lifetime
+end
+```

@@ -3,7 +3,7 @@
 #
 # All rights reserved. This software and associated documentation files (the "Software")
 # may not be used, copied, modified, merged, published, distributed, sublicensed, and/or
-# sold, except with the express written permission of Thnk. Unauthorized copying of this
+# sold, except with the express written permission of Thnker. Unauthorized copying of this
 # file, via any medium is strictly prohibited.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
